@@ -91,12 +91,12 @@ public class Lift {
     public static double time_elapsed = 0;
     public static double time_overall = 0;
 
-    public static final double lift_high = 1687;
-    public static final double lift_mid = 1250;
-    public static final double lift_low = 550;
-    public static final double lift_hold = 400;
-    public static final double lift_stack = 200;
-    public static final double lift_transfer = 1000;
+    public static final double lift_high = 1687 / 145.1;
+    public static final double lift_mid = 1250 / 145.1;
+    public static final double lift_low = 550 / 145.1;
+    public static final double lift_hold = 300 / 145.1;
+    public static final double lift_stack = 200 / 145.1;
+    public static final double lift_transfer = 1000 / 145.1;
 
     public double getPositionL(){
         posL = liftl.getCurrentPosition();

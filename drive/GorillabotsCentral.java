@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Extension;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.Sensors;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.VisionPipeline;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -32,12 +33,14 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
     public Lift lift;
     public Intake intake;
     public Extension extension;
+    public Sensors sensors;
     public SampleMecanumDrive drive;
 
     public void initializeComponents() {
         timer = new ElapsedTime();
         lift = new Lift(hardwareMap, telemetry);
         extension = new Extension(hardwareMap);
+        sensors = new Sensors(hardwareMap);
         //intake = new Intake(hardwareMap, telemetry);
         drive = new SampleMecanumDrive(hardwareMap);
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
