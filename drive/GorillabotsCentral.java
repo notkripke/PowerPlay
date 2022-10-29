@@ -41,7 +41,7 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
         lift = new Lift(hardwareMap, telemetry);
         extension = new Extension(hardwareMap);
         sensors = new Sensors(hardwareMap);
-        //intake = new Intake(hardwareMap, telemetry);
+        intake = new Intake(hardwareMap, telemetry);
         drive = new SampleMecanumDrive(hardwareMap);
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
     }

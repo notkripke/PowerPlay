@@ -39,7 +39,7 @@ public class Lift {
         liftr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftl.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftr.setDirection(DcMotorSimple.Direction.REVERSE);
         init_pos = getPositionL();
         target = init_pos;
         state = State.BASE;
@@ -53,6 +53,9 @@ public class Lift {
     public static double RkP = .8;
     public static double RkI = 0.1;
     public static double RkD = 0.0;
+
+    public static double Rf = .25;//left and right additive feedforward constants.
+    public static double Lf = .25;
 
     public static double target = 0.0;
 
@@ -185,6 +188,100 @@ public class Lift {
        // if(outL > max_velo){ outL = max_velo;}
 
         if(outL > 2*max_velo){ outL = max_velo; }
+
+        if(outL < 2 * -max_velo){ outL =- max_velo;}
+
+        if(outR >  2 * max_velo){ outR = max_velo;}
+
+        if(outR < 2 * -max_velo){ outR =- max_velo;}
+
+        last_errorL = errorL;
+        last_errorR = errorR;
+
+        last_estimateL = cur_estimateL;
+        last_estimateR = cur_estimateR;
+
+        if(angularVeloL > 0.15){
+            state = State.LIFTING;
+        }
+
+        if(angularVeloL > -0.15 && angularVeloL < 0.15 && (posR > target * 0.95 && posR < target * 1.05)){
+            state = State.HOLDING;
+        }
+
+        if(angularVeloL < -0.1){
+            state = State.LOWERING;
+        }
+
+        if(angularVeloL > -0.1 && angularVeloL < 0.15 && (posR > target * 0.95 && posR < target * 1.05) && target == init_pos){
+            state = State.BASE;
+        }
+
+        if(posR >= target * 0.75){
+            safeToExtend = true;
+        }
+        if(posR < target * 0.75){
+            safeToExtend = false;
+        }
+
+        last_target = target;
+
+        last_posL = posL;
+        last_posR = posR;
+    }
+
+    public void updateFeedforward(){
+
+        double errorL = target - (getPositionL() / 145.1);
+        double errorR = target - (getPositionR() / 145.1);
+
+        getAngularVeloL();
+
+        cur_estimateR = (weightR * last_estimateR) + (1 - weightR) * (errorR - last_errorR);
+        cur_estimateL = (weightL * last_estimateL) + (1 - weightL) * (errorL - last_errorL);
+
+        double derivativeR = cur_estimateR / time_elapsed;
+        double derivativeL = cur_estimateL / time_elapsed;
+
+        integral_sumR += (errorR * time_elapsed / 2);
+        integral_sumL += (errorL * time_elapsed / 2);
+
+        if(integral_sumL > integral_sum_limit){
+            integral_sumL = integral_sum_limit;
+        }
+        if(integral_sumL < -integral_sum_limit){
+            integral_sumL = -integral_sum_limit;
+        }
+
+        if(integral_sumR > integral_sum_limit){
+            integral_sumR = integral_sum_limit;
+        }
+        if(integral_sumR < -integral_sum_limit){
+            integral_sumR = -integral_sum_limit;
+        }
+
+        if(target != last_target){
+            if(target < posR){
+                integral_sumR = -integral_sum_base;
+                integral_sumL = -integral_sum_base;
+            }
+            if(target > posR){
+                integral_sumL = integral_sum_base;
+                integral_sumR = integral_sum_base;
+            }
+            //integral_sumL = integral_sum_base;
+            //integral_sumR = integral_sum_base;
+        }
+
+        outL = ((LkP * errorL) + (LkI * integral_sumL) + (LkD * derivativeL)) / 2;
+        outR = ((RkP * errorR) + (RkI * integral_sumR) + (RkD * derivativeR)) / 2;
+
+        outR += Rf;//Add feedforward constants to output power. May need to have different
+        outL += Lf;//feedforward influence for up and down travel respectively.
+
+        // if(outL > max_velo){ outL = max_velo;}
+
+        if(outL > 2 * max_velo){ outL = max_velo; }
 
         if(outL < 2 * -max_velo){ outL =- max_velo;}
 

@@ -22,12 +22,12 @@ public class ComponentTest extends GorillabotsCentral {
         while(!isStopRequested()){
 
 
-            if(gamepad1.right_trigger > 0.1 && gamepad1.left_trigger < 0.1){
+            if(gamepad1.right_trigger > gamepad1.left_trigger) {
                 lift.liftr.setPower(gamepad1.right_trigger);
-                lift.liftl.setPower(gamepad1.left_trigger);
+                lift.liftl.setPower(gamepad1.right_trigger);
             }
 
-            if(gamepad1.right_trigger < 0.1 && gamepad1.left_trigger > 0.1){
+            if(gamepad1.left_trigger > gamepad1.right_trigger){
                 lift.liftl.setPower(-gamepad1.left_trigger);
                 lift.liftr.setPower(-gamepad1.left_trigger);
             }
@@ -38,10 +38,10 @@ public class ComponentTest extends GorillabotsCentral {
             }
 
             if(gamepad1.right_bumper && !gamepad1.left_bumper){
-                extension.extension.setPower(0.5);
+                extension.extension.setPower(1);
             }
             if(gamepad1.left_bumper && !gamepad1.right_bumper){
-                extension.extension.setPower(-0.5);
+                extension.extension.setPower(-1);
             }
             if(!gamepad1.right_bumper && !gamepad1.left_bumper){
                 extension.extension.setPower(0);
@@ -54,6 +54,13 @@ public class ComponentTest extends GorillabotsCentral {
                 intake.target = Intake.Position.OPEN;
             }
             intake.update();
+
+           /* if(gamepad1.a){
+                intake.intake.setPosition(1);
+            }
+            if(gamepad1.b){
+                intake.intake.setPosition(0);
+            }*/
 
             dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
             dashboardTelemetry.addData("Lift R: ", lift.getPositionR());

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Intake {
 
     public Servo intake;
-    public DigitalChannel limit_switch;
+    //public DigitalChannel limit_switch;
 
     public static double OPEN = 0.6;
     public static double CLOSED = 0.15;
@@ -22,8 +22,8 @@ public class Intake {
     public Intake(HardwareMap hardwareMap, Telemetry telemetry){
 
         intake = hardwareMap.servo.get("intake");
-        limit_switch = hardwareMap.digitalChannel.get("limit");
-        limit_switch.setMode(DigitalChannel.Mode.INPUT);
+        //limit_switch = hardwareMap.digitalChannel.get("limit");
+        //limit_switch.setMode(DigitalChannel.Mode.INPUT);
         target = Position.CLOSED;
         state = State.CLOSED;
 
@@ -43,7 +43,7 @@ public class Intake {
     public static Position target = Position.CLOSED;
     public static State state = State.CLOSED;
 
-    public void updateSwitchState() {
+    /*public void updateSwitchState() {
         if (limit_switch.getState()) {
             switch_triggered = false;
         }
@@ -62,10 +62,10 @@ public class Intake {
             switch_triggered = false;
         }
         return switch_triggered;
-    }
+    }*/
 
     public void update(){
-        getSwitchState();
+        //getSwitchState();
         if(target == Position.CLOSED && !switch_triggered){
             intake.setPosition(CLOSED);
             state = State.MOVING;

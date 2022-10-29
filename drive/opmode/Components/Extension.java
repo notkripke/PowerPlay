@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode.Components;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -64,6 +65,7 @@ public class Extension {
 
     public Extension(HardwareMap hardwareMap){
         extension = hardwareMap.dcMotor.get("extension");
+        extension.setDirection(DcMotorSimple.Direction.REVERSE);
         state = State.EXTENDED_MED;
         extension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive.opmode.Auto;
+/*package org.firstinspires.ftc.teamcode.drive.opmode.Auto;
 
 import static org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift.*;
 import static org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake.*;
@@ -274,4 +274,4 @@ public class RedRight extends GorillabotsCentral {
         }
 
     }
-}
+}*/
