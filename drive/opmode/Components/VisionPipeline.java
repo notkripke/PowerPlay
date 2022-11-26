@@ -121,6 +121,14 @@ public class VisionPipeline extends OpenCvPipeline
     {
         return real_sleeve_pos;
     }
+
+    public double sleevePositionInt(){
+        double pos = 2;
+        if(real_sleeve_pos == sleeve_pos.one){ pos = 1; }
+        if(real_sleeve_pos == sleeve_pos.two){ pos = 2; }
+        if(real_sleeve_pos == sleeve_pos.three){ pos = 3; }
+        return pos;
+    }
     /*public int getPos(){
         int pos = 0;
         if (position == BarcodePosition.LEFT){

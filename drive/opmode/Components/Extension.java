@@ -21,7 +21,7 @@ public class Extension {
 
     public static double target = 0;
 
-    public static double kP = 0;
+    public static double kP = 0.008;
     public static double kI = 0;
     public static double kD = 0;
 
@@ -53,10 +53,10 @@ public class Extension {
 
     public static boolean safeToLower = true;
 
-    public static final double intake_pos = -400;
+    public static final double intake_pos = 1;
     public static final double mid = -200;
     public static final double medium_ext = 100;
-    public static final double full_ext = 250;
+    public static final double full_ext = 695;
 
     public static double time_elapsed = 0;
 
@@ -130,13 +130,10 @@ public class Extension {
             if(out > 2 * max_velo){ out = max_velo; }
             if(out < 2 * -max_velo){ out = -max_velo; }
 
-            last_error = error;
-            last_estimate = cur_estimate;
-
-            if(angular_velo > 0.1 || angular_velo < -0.1){
+            if(last_error - error < 15){
                 state = State.MOVING;
             }
-            if(angular_velo > -0.1 && angular_velo < 0.1){
+            if(last_error - error > 15){
 
                 if(target == medium_ext){ state = State.EXTENDED_MED; }
                 if(target == full_ext){ state = State.EXTENDED_MAX; }
@@ -144,10 +141,13 @@ public class Extension {
                 if(target == intake_pos){ state = State.INTAKE; }
             }
 
-            if(target != full_ext && target != medium_ext && pos <= target * 0.6){
+            last_error = error;
+            last_estimate = cur_estimate;
+
+            if(target == intake_pos && pos < 300){
                 safeToLower = true;
             }
-            if(target == full_ext || target == medium_ext || pos >= target * 0.6){
+            if(pos > 300){
                 safeToLower = false;
             }
 

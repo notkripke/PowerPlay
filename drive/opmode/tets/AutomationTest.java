@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Extension;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
@@ -28,11 +30,13 @@ public class AutomationTest extends GorillabotsCentral {
         RETURN
     }
 
-
     @Override
     public void runOpMode() throws InterruptedException {
 
         initializeComponents();
+
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         double last_time = 0;
         double time = 0;
@@ -41,6 +45,7 @@ public class AutomationTest extends GorillabotsCentral {
         int lp_index = 30;
 
         ElapsedTime timer = new ElapsedTime();
+        ElapsedTime intaketime = new ElapsedTime();
 
         FSM prg_state = FSM.START;
 
@@ -72,6 +77,12 @@ public class AutomationTest extends GorillabotsCentral {
                         extension.setTarget(extension.intake_pos);
                     }
 
+                    if(extension.state == Extension.State.INTAKE){
+                        prg_state = FSM.INTAKE;
+                    }
+
+                    break;
+
 
                 case INTAKE:
 
@@ -83,7 +94,7 @@ public class AutomationTest extends GorillabotsCentral {
 
                        if(sensors.intakeReady){
                            lift.setMaxPower(0.5);
-                           lift.setTarget(Lift.lift_stack);
+                           lift.setTarget(30);
 
                            if(intake.switch_triggered){
                                last_stack_height = lift.posR;
@@ -107,6 +118,24 @@ public class AutomationTest extends GorillabotsCentral {
                     if(lift.safeToExtend){
                         extension.setTarget(Extension.full_ext);
                     }
+                    if(extension.state == Extension.State.EXTENDED_MAX && lift.state == Lift.State.HOLDING){
+                        intake.target = Intake.Position.OPEN;
+                        if(intake.state == Intake.State.OPEN){
+                            prg_state = FSM.RETURN;
+                        }
+                    }
+                    break;
+
+                case RETURN:
+                    extension.setTarget(Extension.intake_pos);
+                    if(extension.safeToLower){
+                        lift.setTarget(lift.lift_hold);
+                    }
+                    if(extension.state == Extension.State.INTAKE && lift.state == Lift.State.HOLDING){
+                        prg_state = FSM.INTAKE;
+                    }
+
+                    break;
 
 
 
@@ -115,13 +144,33 @@ public class AutomationTest extends GorillabotsCentral {
                 sensors_activated = false;
             }
 
+            lift.liftr.setPower(lift.outL);
+            lift.liftl.setPower(lift.outL);
+
+            intake.intake.setPosition(intake.target_pos);
+
+            extension.extension.setPower(extension.out);
+
             lift.update();
-            intake.update();
+            intake.update(intaketime);
             extension.update(lift.time_elapsed);
             sensors.update(sensors_activated, lp_index, lp);
 
             last_time = timer.milliseconds();
             lift.time_overall = timer.milliseconds();
+
+            dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
+            dashboardTelemetry.addData("Lift R: ", lift.getPositionR());
+            dashboardTelemetry.addData("Intake Target: ", intake.target);
+            dashboardTelemetry.addData("Intake State: ", intake.state);
+            dashboardTelemetry.addData("Intake Pos: ", intake.intake.getPosition());
+            dashboardTelemetry.addData("Extention Pos: ", extension.getPosition());
+            dashboardTelemetry.addData("Switch: ", intake.getSwitchState());
+            dashboardTelemetry.addData("Distance: ", sensors.in_dist);
+            dashboardTelemetry.addData("state: ", prg_state);
+            dashboardTelemetry.addData("lift state: ", lift.state);
+            dashboardTelemetry.update();
+
 
         }
     }

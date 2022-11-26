@@ -12,7 +12,7 @@ public class Sensors {
     public static double in_dist = 0;
     public static double out_dist = 0;
 
-    public double intake_range = 2.5;
+    public double intake_range = 4.5;
 
     public static boolean intakeReady = false;
 
@@ -49,6 +49,8 @@ public class Sensors {
         }
 
     }
+
+    //public void updateNew(act)
 
 
 

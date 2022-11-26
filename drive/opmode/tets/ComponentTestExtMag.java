@@ -8,11 +8,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.drive.opmode.Components.Extension;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 
 @TeleOp(group = "drive")
-public class ComponentTest extends GorillabotsCentral {
+public class ComponentTestExtMag extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -21,8 +21,11 @@ public class ComponentTest extends GorillabotsCentral {
 
         initializeComponents();
 
+        ExtentionMAG extentionmag = new ExtentionMAG(hardwareMap);
+
         ElapsedTime timer = new ElapsedTime();
         ElapsedTime intaketime = new ElapsedTime();
+        ElapsedTime exttimer = new ElapsedTime();
 
         double last_time = 0;
 
@@ -72,16 +75,13 @@ public class ComponentTest extends GorillabotsCentral {
                 extension.extension.setPower(1);
             }*/
 
-            if(gamepad1.dpad_down && gamepad1.right_trigger > 0.1 && gamepad1.left_trigger < 0.1){
-                extension.extension.setPower(gamepad1.right_trigger);
-            }
-            if(gamepad1.dpad_down && gamepad1.right_trigger < 0.1 && gamepad1.left_trigger > 0.1){
-                extension.extension.setPower(-gamepad1.left_trigger);
-            }
-            if(gamepad1.right_trigger < 0.1 && gamepad1.left_trigger < 0.1){
-                extension.extension.setPower(0);
-            }
+           if(gamepad1.dpad_left){
+               extentionmag.setTarget(ExtentionMAG.State.RETRACTED);
+           }
 
+           if(gamepad1.dpad_right){
+               extentionmag.setTarget(ExtentionMAG.State.EXTENDED);
+           }
 
             if(gamepad1.a){
                 intake.target = Intake.Position.OPEN;
@@ -103,8 +103,8 @@ public class ComponentTest extends GorillabotsCentral {
             );
 
             drive.update();
-            extension.update(lift.time_elapsed);
-            extension.extension.setPower(extension.out);
+            extentionmag.update(exttimer);
+            extentionmag.extension.setPower(extentionmag.out);
 
 
             /*if(gamepad1.a){
@@ -121,8 +121,12 @@ public class ComponentTest extends GorillabotsCentral {
             dashboardTelemetry.addData("Intake Target: ", intake.target);
             dashboardTelemetry.addData("Intake State: ", intake.state);
             dashboardTelemetry.addData("Intake Pos: ", intake.intake.getPosition());
-            dashboardTelemetry.addData("Extention Pos: ", extension.getPosition());
             dashboardTelemetry.addData("Switch: ", intake.getSwitchState());
+            dashboardTelemetry.addData("Mag Triggered: ", extentionmag.getMagSwitch());
+            dashboardTelemetry.addData("override: ", extentionmag.override);
+            dashboardTelemetry.addData("Ext state: ", extentionmag.state);
+            dashboardTelemetry.addData("Ext Target: ", extentionmag.target);
+            dashboardTelemetry.addData("last_non 0 out: ", extentionmag.last_non_zero_out);
             dashboardTelemetry.update();
 
 

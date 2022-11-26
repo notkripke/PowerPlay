@@ -35,7 +35,6 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
  * satisfactory result is produced.
  */
 @Config
-@Disabled
 @Autonomous(group="drive")
 public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
     public static double ANGLE = 180; // deg
@@ -47,6 +46,7 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
 
         if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "

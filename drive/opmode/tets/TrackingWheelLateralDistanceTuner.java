@@ -63,7 +63,6 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
  * precision. The heading should still line up.
  */
 @Config
-@Disabled
 @TeleOp(group = "drive")
 public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
     public static int NUM_TURNS = 10;
@@ -71,6 +70,7 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
 
         if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "

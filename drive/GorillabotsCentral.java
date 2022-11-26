@@ -39,7 +39,7 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
     public void initializeComponents() {
         timer = new ElapsedTime();
         lift = new Lift(hardwareMap, telemetry);
-        extension = new Extension(hardwareMap);
+        //extension = new Extension(hardwareMap);
         sensors = new Sensors(hardwareMap);
         intake = new Intake(hardwareMap, telemetry);
         drive = new SampleMecanumDrive(hardwareMap);

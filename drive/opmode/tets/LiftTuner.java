@@ -123,21 +123,21 @@ public class LiftTuner extends GorillabotsCentral {
                     high_position =! high_position;
                 }*/
 
-                lift.update();
+                lift.updateFeedforwardNew();
 
 
 
 
                 last_state = lift.state;
 
-                lift.liftr.setPower(lift.outR / 2);
-                lift.liftl.setPower(lift.outL / 2);
+                lift.liftr.setPower(lift.outL);
+                lift.liftl.setPower(lift.outL);
 
                 dashboardTelemetry.addData("Target Position: ", lift.target);
-                dashboardTelemetry.addData("Left Position: ", lift.posL / 145.1);
-                dashboardTelemetry.addData("Right Position: ", lift.posR / 145.1);
-                dashboardTelemetry.addData("Left Power: ", lift.outL / 2);
-                dashboardTelemetry.addData("Right Power: ", lift.outR / 2);
+                dashboardTelemetry.addData("Left Position: ", lift.posL);
+                dashboardTelemetry.addData("Right Position: ", lift.posR);
+                dashboardTelemetry.addData("Left Power: ", lift.outL);
+                dashboardTelemetry.addData("Right Power: ", lift.outL);
                 dashboardTelemetry.addData("Lift State: ", lift.state);
                 dashboardTelemetry.addData("Int Sum L: ", lift.integral_sumL);
                 dashboardTelemetry.addData("Int Sum R: ", lift.integral_sumR);
