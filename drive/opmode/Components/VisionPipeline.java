@@ -33,9 +33,9 @@ public class VisionPipeline extends OpenCvPipeline
      */
 
 
-    static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(315,30);
-    static int REGION_WIDTH = 175;
-    static int REGION_HEIGHT = 240 ;
+    static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(210,35);
+    static int REGION_WIDTH = 155;
+    static int REGION_HEIGHT = 235 ;
 
 
     Point region1_pointA = new Point(

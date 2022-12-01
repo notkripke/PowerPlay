@@ -40,8 +40,8 @@ public class Lift {
         liftr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftr.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftl.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftl.setDirection(DcMotorSimple.Direction.REVERSE);
-        //liftr.setDirection(DcMotorSimple.Direction.REVERSE);
+        //liftl.setDirection(DcMotorSimple.Direction.REVERSE);
+        liftr.setDirection(DcMotorSimple.Direction.REVERSE);
         init_pos = getPositionL();
         target = init_pos;
         state = State.BASE;

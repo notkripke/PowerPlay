@@ -103,6 +103,8 @@ public class MagAutoTeleop extends GorillabotsCentral {
 
                         act = true;
 
+
+
                         if(sensors.intakeReady){
                             lift.setTarget(1);
                             machine = FSM.INTAKE_DOWN;
@@ -117,9 +119,11 @@ public class MagAutoTeleop extends GorillabotsCentral {
 
                     if(intake.state == Intake.State.CLOSED && intake.switch_cooldown){
 
-                        if(lift.state == Lift.State.STALLING && lift.last_posL > 75){
+                        custom_transfer_target = lift.posL + 700;
+
+                        if(lift.state == Lift.State.STALLING || lift.posL > 30){
                             off_stack = true;
-                            custom_transfer_target = lift.last_posL + 150;
+                            custom_transfer_target = lift.posL + 650;
                         }
 
                         if((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && lift.last_posL < 75){
@@ -139,7 +143,8 @@ public class MagAutoTeleop extends GorillabotsCentral {
                 case TRANSFER:
 
                     if(!off_stack) {
-                        lift.setTarget(lift.lift_hold);
+                        //lift.setTarget(lift.lift_hold);
+                        lift.setTarget(custom_transfer_target);
                     }
 
                     if(off_stack){
@@ -197,6 +202,7 @@ public class MagAutoTeleop extends GorillabotsCentral {
                     if ((extentionMAG.state == ExtentionMAG.State.MOVING_BACK && !extentionMAG.safeToLower) || extentionMAG.state == ExtentionMAG.State.RETRACTED) {
 
                         lift.setTarget(Lift.lift_hold);
+                        sensors.reset();
                         machine = FSM.INTAKE_UP;
                     }
 

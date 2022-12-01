@@ -86,13 +86,13 @@ public class Intake {
 
     public void update(ElapsedTime intaketime){
         getSwitchState();
-        if(target == Position.CLOSED && (intake.getPosition() != CLOSED)){
+        if(target == Position.CLOSED && (intake.getPosition() > CLOSED * 1.35)){
             //intake.setPosition(CLOSED);
             target_pos = CLOSED;
             state = State.MOVING;
         }
 
-        if(target == Position.CLOSED && (intake.getPosition() == CLOSED)){
+        if(target == Position.CLOSED && (intake.getPosition() < CLOSED * 1.35)){
             //intake.setPosition(CLOSED);
             target_pos = CLOSED;
             state = State.CLOSED;
