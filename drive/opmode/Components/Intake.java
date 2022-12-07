@@ -29,7 +29,7 @@ public class Intake {
     public static boolean switch_cooldown = false;
 
     public static double switch_time = 0;
-    public static double switch_time_thresh = .1;
+    public static double switch_time_thresh = .3;
 
 
     public static boolean last_switch = false;

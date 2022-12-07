@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.ConeFlipper;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 
@@ -75,19 +76,20 @@ public class ComponentTestExtMag extends GorillabotsCentral {
                 extension.extension.setPower(1);
             }*/
 
-           if(gamepad1.dpad_left){
-               extentionmag.setTarget(ExtentionMAG.State.RETRACTED);
-           }
 
-           if(gamepad1.dpad_right){
-               extentionmag.setTarget(ExtentionMAG.State.EXTENDED);
-           }
 
             if(gamepad1.a){
                 intake.target = Intake.Position.OPEN;
             }
             if(gamepad1.b){
                 intake.target = Intake.Position.CLOSED;
+            }
+
+            if(gamepad1.left_bumper){
+                flipper.flipper.setPosition(flipper.RAISED);
+            }
+            if(gamepad1.right_bumper){
+                flipper.flipper.setPosition(flipper.LOWERED);
             }
 
             intake.intake.setPosition(intake.target_pos);
@@ -105,6 +107,7 @@ public class ComponentTestExtMag extends GorillabotsCentral {
             drive.update();
             extentionmag.update(exttimer);
             extentionmag.extension.setPower(extentionmag.out);
+
 
 
             /*if(gamepad1.a){

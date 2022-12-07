@@ -129,7 +129,7 @@ public class ExtentionMAG {
         }
 
         if(state != State.EXTENDED && target == State.EXTENDED){
-            out = .685;//1
+            out = 1;//1
         }
         if(state == State.EXTENDED && target == State.EXTENDED){
             out = 0;
