@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
 
 @TeleOp(group = "drive")
+@Disabled
 public class AutoFSMTest extends GorillabotsCentral {
 
     enum FSM{

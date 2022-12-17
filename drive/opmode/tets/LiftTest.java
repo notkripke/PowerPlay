@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 
 
 @Autonomous(group = "drive")
+@Disabled
 public class LiftTest extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {

@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 
 @TeleOp(group = "drive")
+@Disabled
 public class LimitSwitchTest extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {

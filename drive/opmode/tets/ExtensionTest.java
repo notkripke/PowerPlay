@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
 @TeleOp(group = "drive")
+@Disabled
 public class ExtensionTest extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {

@@ -19,7 +19,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @TeleOp(group = "AAAAAAAAAA", name = "visionTest")
-
+@Disabled
 public class VisionTest extends LinearOpMode {
     public void runOpMode() {
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
 @TeleOp(group = "drive")
 @Config
+@Disabled
 public class LiftTuner extends GorillabotsCentral {
 
     static String test_mode = "PID";

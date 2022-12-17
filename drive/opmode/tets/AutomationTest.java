@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -18,6 +19,7 @@ locomotion, height selection, and finalizing intake/outtake operations.
  */
 
 @TeleOp(group = "drive")
+@Disabled
 public class AutomationTest extends GorillabotsCentral {
 
 

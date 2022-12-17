@@ -135,7 +135,7 @@ public class MagAutoTeleop extends GorillabotsCentral {
                             manual_intake = true;
                         }
 
-                        lift.max_power_dwn = -0.25;
+                        lift.max_power_dwn = -0.35;
 
                         act = false;
 
@@ -157,6 +157,13 @@ public class MagAutoTeleop extends GorillabotsCentral {
                         if ((gamepad1.y && !intake.switch_triggered) || (lift.state == Lift.State.STALLING && !intake.switch_triggered) && stalltimer.seconds() >= 0.5) {
                             lift.setTarget(Lift.lift_stack);
                             machine = FSM.INTAKE_UP;
+                        }
+
+                        if(gamepad1.a){
+                            intake.intake.setPosition(intake.OPEN);
+                        }
+                        if(gamepad1.b){
+                            intake.intake.setPosition(intake.CLOSED);
                         }
 
                         break;
@@ -255,6 +262,13 @@ public class MagAutoTeleop extends GorillabotsCentral {
                     isAutoControlled = false;
                 }
 
+                if(gamepad1.left_bumper){
+                    flipper.flipper.setPosition(flipper.RAISED);
+                }
+                if(gamepad1.right_bumper){
+                    flipper.flipper.setPosition(flipper.LOWERED);
+                }
+
                 drive.update();
                 //extension.update(lift.time_elapsed);
                 //extension.extension.setPower(extension.out);
@@ -289,6 +303,7 @@ public class MagAutoTeleop extends GorillabotsCentral {
                 dashboardTelemetry.addData("Ext State: ", extentionMAG.state);
                 dashboardTelemetry.addData("Ext target: ", extentionMAG.target);
                 dashboardTelemetry.addData("safeToLower: ", extentionMAG.safeToLower);
+                dashboardTelemetry.addData("lift power: ", lift.outL);
                 dashboardTelemetry.update();
 
                 last_mchn = machine;

@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.opencv.ml.EM;
 
 @Autonomous(group = "drive")
 public class RR40 extends GorillabotsCentral {
@@ -26,7 +27,8 @@ public class RR40 extends GorillabotsCentral {
         ALIGNTOPOLE1,
         GOTOSTACK,
         RETURNTOPOLE,
-        PARK
+        PARK,
+        EMERGENCY
     }
 
     enum LiftAutoRR{
@@ -34,7 +36,8 @@ public class RR40 extends GorillabotsCentral {
         LIFTTOPOLE,
         INTAKE,
         CLEAR,
-        DONE
+        DONE,
+        EMERGENCY
     }
 
 
@@ -55,6 +58,9 @@ public class RR40 extends GorillabotsCentral {
         ElapsedTime timer = new ElapsedTime();
         ElapsedTime exttimer = new ElapsedTime();
         ElapsedTime intake_drop_timer = new ElapsedTime();
+        ElapsedTime emergency_park_timer = new ElapsedTime();
+
+        int thing2 = 0;
 
         ExtentionMAG extentionMAG = new ExtentionMAG(hardwareMap);
 
@@ -69,19 +75,11 @@ public class RR40 extends GorillabotsCentral {
 
         int loop_max = 40;
 
+        boolean emergency_parked = false;
+
         Lift.State last_state = Lift.State.BASE;
 
         double last_time = 0;
-
-        /*TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(36,-60,Math.PI/2))//0,0,0
-                .lineToLinearHeading(new Pose2d(37, 5, Math.PI/2))
-                .lineToLinearHeading(new Pose2d(37, -9, Math.toRadians(135)))//125
-                .lineToLinearHeading(new Pose2d(27.2, -3, Math.toRadians(124)))
-                .lineToLinearHeading(new Pose2d(28, -3, Math.toRadians(124)))
-                //.splineToLinearHeading(new Pose2d(27.5, -4.9, Math.toRadians(139)), Math.toRadians(139))
-                .addTemporalMarker(6, () -> lift.setTarget(Lift.lift_high))
-
-                .build();*/
 
         TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(36,-60,Math.PI/2))//0,0,0
                 .addTemporalMarker(3, () -> lowerConstaints(0.8))
@@ -123,14 +121,30 @@ public class RR40 extends GorillabotsCentral {
                 .lineToLinearHeading(new Pose2d(58, -12, Math.toRadians(180)))
                 .build();
 
+       /* TrajectorySequence epark1 = drive.trajectorySequenceBuilder(driveToStack.end())
+                .lineToLinearHeading(new Pose2d(58, -12, Math.toRadians(0)))
+                .build();
+
+        TrajectorySequence epark2 = drive.trajectorySequenceBuilder(driveToStack.end())
+                .lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(0)))
+                .build();
+
+        TrajectorySequence epark3 = drive.trajectorySequenceBuilder(driveToStack.end())
+                .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(0)))
+                .build();*/
+
         //lift.setTarget(Lift.lift_stack);
 
         double cycles = 2;
         double cycles_completed = 0;
 
+        double ok = 400;
+
         boolean new_cone_grabbed = false;
         boolean dropped_cone = false;
         double field_pos = 2;
+
+        boolean thing = false;
 
         startVisionProcessing();
 
@@ -208,22 +222,37 @@ public class RR40 extends GorillabotsCentral {
                         extentionMAG.setTarget(ExtentionMAG.State.RETRACTED);
                     }
 
-                    if(extentionMAG.state == ExtentionMAG.State.RETRACTED && lift.target != 1){
+                    if(extentionMAG.state == ExtentionMAG.State.RETRACTED && lift.target != 1 && thing2 == 0){
                         lift.setTarget(Lift.lift_stack);
                     }
 
-                    if(!drive.isBusy() && goingToStack){
+                   /* if(emergency_park_timer.seconds() > 6){
+                        drv = DriveAutoRR.EMERGENCY;
+                        lift.setTarget(Lift.lift_stack);
+                        lft = LiftAutoRR.EMERGENCY;
+                    }*/
+
+                    if(!drive.isBusy() && goingToStack && !new_cone_grabbed && !intake.switch_triggered){
                         lift.setTarget(1);
                     }
 
-                    if(intake.switch_triggered && goingToStack && intake.state != Intake.State.CLOSED && !new_cone_grabbed){
-                        lift.setTarget(lift.getPositionL());
+                    if(intake.switch_triggered && goingToStack && intake.state != Intake.State.CLOSED && !new_cone_grabbed && !thing){
+                        ok = lift.getPositionL();
+                        lift.setTarget(ok);
                         intake_drop_timer.reset();
+                        emergency_park_timer.reset();
                         new_cone_grabbed = true;
                         intake.intake.setPosition(intake.CLOSED);
                     }
 
-                    if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 1.5) && new_cone_grabbed){
+                    if(intake.switch_triggered && lift.target == ok && !thing && new_cone_grabbed){
+                        thing2 += 1;
+                        if(emergency_park_timer.seconds() > 2 && thing2 == 150){
+                            thing = true;
+                        }
+                    }
+
+                    if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 2) && new_cone_grabbed && thing && thing2 == 150){
                         lift.setTarget(Lift.lift_hold + 500);
                         lft = LiftAutoRR.CLEAR;
                         intake.intake.setPosition(intake.CLOSED);
@@ -248,6 +277,14 @@ public class RR40 extends GorillabotsCentral {
                     }
 
                     if((extentionMAG.state == ExtentionMAG.State.MOVING_BACK || extentionMAG.state == ExtentionMAG.State.RETRACTED) && intake_drop_timer.seconds() >= 2 && drive.isBusy()){
+                        lift.setTarget(1);
+                    }
+
+                    break;
+
+                case EMERGENCY:
+
+                    if(emergency_parked){
                         lift.setTarget(1);
                     }
 
@@ -300,6 +337,21 @@ public class RR40 extends GorillabotsCentral {
                         stop();
                     }
 
+                    break;
+
+               /* case EMERGENCY:
+
+                    if(lift.state == Lift.State.HOLDING && lift.target == lift.lift_stack){
+
+                        if(field_pos == 1){ drive.followTrajectorySequenceAsync(epark1); }
+                        if(field_pos == 2){ drive.followTrajectorySequenceAsync(epark2); }
+                        if(field_pos == 3){ drive.followTrajectorySequenceAsync(epark3); }
+                        intake_drop_timer.reset();
+                        drv = DriveAutoRR.PARK;
+                    }
+
+                    break;*/
+
 
             }
 
@@ -335,6 +387,9 @@ public class RR40 extends GorillabotsCentral {
             dashboardTelemetry.addData("dropped cone: ", dropped_cone);
             dashboardTelemetry.addData("intake drop: ", intake_drop_timer.time());
             dashboardTelemetry.addData("Cycles completed: ", cycles_completed);
+            dashboardTelemetry.addData("timer thingy: ", emergency_park_timer.seconds());
+            dashboardTelemetry.addData("thing: ", thing);
+            dashboardTelemetry.addData("thing2: ", thing2);
             dashboardTelemetry.update();
         }
 

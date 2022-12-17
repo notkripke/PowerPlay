@@ -66,7 +66,7 @@ public class Lift {
     public static double posL = 0.0;
     public static double posR = 0.0;
 
-    public static double max_power_dwn = 0;
+    public static double max_power_dwn = -0.25;
 
     public static double angularVeloL = 0.0;
     public static double angularVeloR = 0.0;
@@ -99,7 +99,7 @@ public class Lift {
     public static double time_overall = 0;
 
     public static final double lift_high = 3300;
-    public static final double lift_mid = 2385;
+    public static final double lift_mid = 2300;//2385
     public static final double lift_low = 1400;
     public static final double lift_hold = 450;
     public static final double lift_stack = 1000;
@@ -390,11 +390,11 @@ public class Lift {
         //if(outR < max_power_dwn){ outR = max_power_dwn; }
 
         if((posL > -50 && posL < 150) && target < 20){
-            max_power_dwn = -.2;
+            max_power_dwn = -.5;
         }
 
         if(posL > 250){
-            max_power_dwn = -.2;
+            max_power_dwn = -.5;
         }
 
         // if(outL > max_velo){ outL = max_velo;}
@@ -432,12 +432,20 @@ public class Lift {
             state = State.LIFTING;
         }
 
-        if(last_errorL - errorL < 20 && errorL < 30){
+        if(last_errorL - errorL < 20 && errorL < 30 && (target != 0 && target != 1)){
             state = State.HOLDING;
         }
 
         if(last_errorL - errorL < 20 && errorL > 30){
             state = State.STALLING;
+        }
+
+        if((target == 1 || target == 0) && last_errorL - errorL < 10 && errorL < 20){
+            state = State.HOLDING;
+        }
+
+        if((target == 1 || target == 0) && posL > 20){
+            outL = -0.5;
         }
 
 
