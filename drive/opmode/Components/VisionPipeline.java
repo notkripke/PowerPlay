@@ -33,7 +33,7 @@ public class VisionPipeline extends OpenCvPipeline
      */
 
 
-    static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(210,35);
+    static Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(160,35);
     static int REGION_WIDTH = 155;
     static int REGION_HEIGHT = 235 ;
 
@@ -53,8 +53,8 @@ public class VisionPipeline extends OpenCvPipeline
     Mat Y = new Mat();
     int avg1;
 
-    final double thres_low = 135;
-    final double thesh_high = 170;
+    final double thres_low = 100;
+    final double thesh_high = 155;
 
     public enum sleeve_pos {one, two, three}
 

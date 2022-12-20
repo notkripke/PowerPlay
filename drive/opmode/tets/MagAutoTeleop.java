@@ -141,11 +141,11 @@ public class MagAutoTeleop extends GorillabotsCentral {
 
                         if (intake.state == Intake.State.CLOSED && (intake.switch_cooldown || manual_intake)) {
 
-                            custom_transfer_target = lift.posL + 700;
+                            custom_transfer_target = lift.posL + 775;
 
                             if (lift.state == Lift.State.STALLING || lift.posL > 30) {
                                 off_stack = true;
-                                custom_transfer_target = lift.posL + 650;
+                                custom_transfer_target = lift.posL + 700;
                             }
 
                             if ((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && lift.last_posL < 75) {
@@ -208,7 +208,7 @@ public class MagAutoTeleop extends GorillabotsCentral {
                             extentionMAG.setTarget(ExtentionMAG.State.EXTENDED);
                         }
 
-                        if ((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && extentionMAG.state == ExtentionMAG.State.EXTENDED && intake.state == Intake.State.OPEN) {
+                        if ((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) /*extentionMAG.state == ExtentionMAG.State.EXTENDED*/ && intake.state == Intake.State.OPEN) {
                             //intake.override = true;
                             //intake.target = Intake.Position.OPEN;
                             machine = FSM.RETURN;
@@ -274,7 +274,7 @@ public class MagAutoTeleop extends GorillabotsCentral {
                 //extension.extension.setPower(extension.out);
                 extentionMAG.update(exttimer);
                 extentionMAG.extension.setPower(extentionMAG.out);
-                sensors.update(act, snsr_loop, loop_max);
+                sensors.update(act, snsr_loop, loop_max, false, true);
                 lift.updateFeedforwardNew();
                 lift.liftl.setPower(lift.outL);
                 lift.liftr.setPower(lift.outL);

@@ -75,7 +75,7 @@ public class RR28 extends GorillabotsCentral {
                 .lineToLinearHeading(new Pose2d(37, -18, Math.PI/2))
                 .lineToLinearHeading(new Pose2d(37, -36, Math.PI/2))//125
                 .turn(Math.toRadians(45))
-                .lineToLinearHeading(new Pose2d(27.75, -27.75, Math.toRadians(135)))
+                .lineToLinearHeading(new Pose2d(27.75, -26.9, Math.toRadians(135)))
                 //.splineToLinearHeading(new Pose2d(27.5, -4.9, Math.toRadians(139)), Math.toRadians(139))
                 .addTemporalMarker(6, () -> lift.setTarget(Lift.lift_mid))
 
