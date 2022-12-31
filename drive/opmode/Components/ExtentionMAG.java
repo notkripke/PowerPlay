@@ -132,13 +132,13 @@ public class ExtentionMAG {
             out = 1;//1
         }
         if(state == State.EXTENDED && target == State.EXTENDED){
-            out = 0;
+            out = 0.2;
         }
         if(state != State.RETRACTED && target == State.RETRACTED){
             out = -1;
         }
         if(state == State.RETRACTED && target == State.RETRACTED){
-            out = 0;
+            out = -0.2;
         }
 
         if(timer.time() > safe_lower_time_thresh){

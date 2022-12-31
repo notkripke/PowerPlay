@@ -99,7 +99,7 @@ public class Lift {
     public static double time_overall = 0;
 
     public static final double lift_high = 3300;
-    public static final double lift_mid = 2300;//2385
+    public static final double lift_mid = 2225;//2300 2250
     public static final double lift_low = 1400;
     public static final double lift_hold = 450;
     public static final double lift_stack = 1000;

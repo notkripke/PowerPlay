@@ -8,20 +8,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Sensors {
 
-    public Rev2mDistanceSensor dIn, dOut, dSideIn, dSideOut;
+    public Rev2mDistanceSensor dIn, dOut, dSideIn/*, dSideOut*/;
 
     public static double in_dist = 0;
     public static double out_dist = 0;
     public static double in_side_dist = 0;
-    public static double out_side_dist = 0;
+    //public static double out_side_dist = 0;
 
     public double intake_range = 4.5;
 
-    public static double max_considerable_dist_x = 7.5; //If sensor reads higher than this, assume its reading
+    public static double max_considerable_dist_x = 5; //If sensor reads higher than this, assume its reading
                                                         // other side of robot
+    //public static double MAx_considera
 
     public double intake_range_side_lowthresh = 2;
-    public double intake_range_side_highthresh = 3.5;
+    public double intake_range_side_highthresh = 3;
 
     public double outtake_range_lowthresh = 2.5;
     public double outtake_range_highthresh = 5;
@@ -29,8 +30,8 @@ public class Sensors {
     public double outtake_range_side_lowthresh = 1.5;
     public double outtake_range_side_highthresh = 3;
 
-    public double idealInY = 4;
-    public double idealInX = 3;
+    public double idealInY = 7;
+    public double idealInX = 2.5;
 
     public double idealOutY = 3.25;
     public double idealOutX = 2;
@@ -67,106 +68,36 @@ public class Sensors {
         return in_side_dist;
     }
 
-    public double getDistSideOut(){
+    public void update(boolean act, int snsr_loop, int loop_max){
+
+    }
+
+   /* public double getDistSideOut(){
         out_side_dist = dSideOut.getDistance(DistanceUnit.INCH);
         return out_side_dist;
-    }
+    }*/
 
     public void reset(){
         in_dist = 0;
         out_dist = 0;
         in_side_dist = 0;
-        out_side_dist = 0;
+        //out_side_dist = 0;
         intakeReady = false;
         outtakeReady = false;
     }
 
-    public void update(boolean activated, int loop_inc, int loop, boolean useOut, boolean useIn){
+    public void updateb(boolean activated, int loop_inc, int loop){
 
         if(activated){
 
             if(loop >= loop_inc){
 
-
-                if(useIn){
-
-                    if(getDistIn() <= intake_range && (getDistInSide() >= intake_range_side_lowthresh && in_side_dist <= intake_range_side_highthresh)){
-                        intakeReady = false;
-                    }
-
-                    if(in_dist > intake_range || in_side_dist < intake_range_side_lowthresh || in_side_dist > intake_range_side_highthresh){
-                        intakeReady = false;
-                    }
-
+                if(getDistIn() >= 3 && in_dist < 3.9){
+                    intakeReady = true;
                 }
 
-                if(useOut){
-
-                    if(getDistOut() >= outtake_range_lowthresh && out_dist <= outtake_range_highthresh){
-                        outtakeReady = true;
-                    }
-
-                    if(out_dist < outtake_range_lowthresh || out_dist > outtake_range_highthresh){
-                        outtakeReady = false;
-                    }
-
-
-                }
-            }
-        }
-
-    }
-
-    public void updateAutoAdj(boolean activated, int loop_inc, int loop, boolean useOut, boolean useIn){
-
-        if(activated){
-
-            if(loop >= loop_inc){
-
-
-                if(useIn){
-
-                    if(getDistIn() <= intake_range && (getDistInSide() >= intake_range_side_lowthresh && in_side_dist <= intake_range_side_highthresh)){
-                        intakeReady = true;
-                    }
-
-                    if(in_dist > intake_range || in_side_dist < intake_range_side_lowthresh || in_side_dist > intake_range_side_highthresh){
-                        intakeReady = false;
-
-                        if(in_side_dist > max_considerable_dist_x){
-                            adj_power_x = 0;
-                        }
-
-                        if(in_side_dist < max_considerable_dist_x){
-                            adj_power_x = ((in_side_dist - idealInX) / (2 * max_considerable_dist_x));
-                        }
-
-                        adj_power_y = (in_dist - idealInY) / 15;
-                    }
-
-                }
-
-                if(useOut){
-
-                    if(getDistOut() >= outtake_range_lowthresh && out_dist <= outtake_range_highthresh){
-                        outtakeReady = true;
-                    }
-
-                    if(out_dist < outtake_range_lowthresh || out_dist > outtake_range_highthresh){
-                        outtakeReady = false;
-
-                        if(out_side_dist > max_considerable_dist_x){
-                            adj_power_x = 0;
-                        }
-
-                        if(out_side_dist < max_considerable_dist_x){
-                            adj_power_x = ((out_side_dist - idealOutX) / (2 * max_considerable_dist_x));
-                        }
-
-                        adj_power_y = (out_dist - idealOutY) / 15;
-                    }
-
-
+                if(in_dist > intake_range){
+                    intakeReady = false;
                 }
             }
         }
@@ -192,10 +123,12 @@ public class Sensors {
                     }
 
                     if (in_side_dist < max_considerable_dist_x) {
-                        adj_power_x = ((in_side_dist - idealInX) / (2 * max_considerable_dist_x));
+                        adj_power_x = ((in_side_dist - idealInX) / (max_considerable_dist_x));
                     }
 
-                    adj_power_y = (in_dist - idealInY) / 15;
+                    if(in_dist < 24) {
+                        adj_power_y = -(in_dist - idealInY) / 15;
+                    }
                 }
 
             }
@@ -211,13 +144,13 @@ public class Sensors {
                 if (out_dist < outtake_range_lowthresh || out_dist > outtake_range_highthresh) {
                     outtakeReady = false;
 
-                    if (out_side_dist > max_considerable_dist_x) {
+                    /*if (out_side_dist > max_considerable_dist_x) {
                         adj_power_x = 0;
                     }
 
                     if (out_side_dist < max_considerable_dist_x) {
                         adj_power_x = ((out_side_dist - idealOutX) / (2 * max_considerable_dist_x));
-                    }
+                    }*/
 
                     adj_power_y = (out_dist - idealOutY) / 15;
                 }
