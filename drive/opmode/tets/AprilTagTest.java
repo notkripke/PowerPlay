@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
+import android.graphics.Bitmap;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -14,7 +22,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera2;
 
 import java.util.ArrayList;
 
-@TeleOp
+@TeleOp(group = "drive")
 public class AprilTagTest extends GorillabotsCentral
 {
 
@@ -26,7 +34,16 @@ public class AprilTagTest extends GorillabotsCentral
 
     ConePos conePos = ConePos.TWO;
 
-    OpenCvCamera camera;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
+    CameraStreamSource src = new CameraStreamSource() {
+        @Override
+        public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
+
+        }
+    };
+
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -55,7 +72,11 @@ public class AprilTagTest extends GorillabotsCentral
     public void runOpMode()
     {
 
-        startAprilProcessLEFT();
+        initializeComponents();
+
+        startAprilProcessRIGHT();
+
+        FtcDashboard.getInstance().startCameraStream(webcamR, 24);
 
         waitForStart();
 
@@ -72,9 +93,10 @@ public class AprilTagTest extends GorillabotsCentral
             // If there's been a new frame...
             if(detections != null)
             {
-                telemetry.addData("FPS", camera.getFps());
-                telemetry.addData("Overhead ms", camera.getOverheadTimeMs());
-                telemetry.addData("Pipeline ms", camera.getPipelineTimeMs());
+                telemetry.addData("FPS", webcamR.getFps());
+                telemetry.addData("Overhead ms", webcamR.getOverheadTimeMs());
+                telemetry.addData("Pipeline ms", webcamR.getPipelineTimeMs());
+                telemetry.addData("thing: ", apipe.getDetectionsUpdate());
 
                 // If we don't see any tags
                 if(detections.size() == 0)

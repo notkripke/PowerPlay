@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
-
+@Disabled
 @TeleOp(group = "drive")
 public class MagAutoTeleop extends GorillabotsCentral {
 

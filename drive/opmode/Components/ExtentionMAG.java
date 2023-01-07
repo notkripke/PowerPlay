@@ -32,7 +32,7 @@ public class ExtentionMAG {
     public double last_ref = 0;
 
     public static double override_loop_index = 0;
-    public static double override_loop_thresh = 60;
+    public static double override_loop_thresh = 75;//60
 
     public static double safe_lower_time_thresh = .75;
 

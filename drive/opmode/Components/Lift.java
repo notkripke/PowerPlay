@@ -48,12 +48,12 @@ public class Lift {
 
     }
 
-    public static double LkP = .008;
-    public static double LkI = 0.002;
+    public static double LkP = .02;//.008
+    public static double LkI = 0.008;
     public static double LkD = 0.0;
 
-    public static double RkP = .008;
-    public static double RkI = 0.002;
+    public static double RkP = .02;
+    public static double RkI = 0.008;
     public static double RkD = 0.0;
 
     public static double Rf = .15;//left and right additive feedforward constants.
@@ -99,10 +99,10 @@ public class Lift {
     public static double time_overall = 0;
 
     public static final double lift_high = 3300;
-    public static final double lift_mid = 2225;//2300 2250
+    public static final double lift_mid = 2275;//2300 2250
     public static final double lift_low = 1400;
     public static final double lift_hold = 450;
-    public static final double lift_stack = 1000;
+    public static final double lift_stack = 875;//900
     public static final double lift_transfer = 1000;
 
     public double getPositionL(){

@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
 
+@Disabled
 @TeleOp(group = "drive")
 @Config
-@Disabled
 public class LiftTuner extends GorillabotsCentral {
 
     static String test_mode = "PID";

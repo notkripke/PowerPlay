@@ -12,8 +12,11 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
+import org.firstinspires.ftc.teamcode.drive.opmode.tets.AprilTagTest;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.openftc.apriltag.AprilTagDetection;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(group = "drive")
@@ -35,6 +38,12 @@ public class Right52 extends GorillabotsCentral {
         CLEAR,
         DONE,
         EMERGENCY
+    }
+
+    enum ConePos {
+        ONE,
+        TWO,
+        THREE
     }
 
 
@@ -74,8 +83,6 @@ public class Right52 extends GorillabotsCentral {
 
         int loop_max = 40;
 
-        boolean emergency_parked = false;
-
         Lift.State last_state = Lift.State.BASE;
 
         lowerConstaints(0.65);
@@ -86,8 +93,8 @@ public class Right52 extends GorillabotsCentral {
                 .setReversed(false)
                 //.lineToLinearHeading(new Pose2d(36, -23.25, Math.PI))
                 //.lineToLinearHeading(new Pose2d(31.25, -23.25, Math.PI))//x32
-                .lineToLinearHeading(new Pose2d(36, -28.25, Math.PI))
-                .splineToLinearHeading(new Pose2d(31.25, -23.75, Math.PI), Math.PI)
+                .lineToLinearHeading(new Pose2d(36, -25.25, Math.PI))
+                .splineToLinearHeading(new Pose2d(31.5, -23.5, Math.PI), Math.PI)//x31.25
                 .addTemporalMarker(1.5, () -> lift.setTarget(Lift.lift_mid))//3
                 .build();
 
@@ -98,8 +105,8 @@ public class Right52 extends GorillabotsCentral {
                 .splineToLinearHeading(new Pose2d(39, -10, Math.toRadians(180)), Math.toRadians(0))
                 //.waitSeconds(0.1)
                 .lineToLinearHeading(new Pose2d(60, -10, Math.toRadians(180)))*/
-                .lineToLinearHeading(new Pose2d(37, -14.5, Math.toRadians(180)))
-                .splineToLinearHeading(new Pose2d(64, -11, Math.toRadians(180)), Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(37, -15, Math.toRadians(180)))//y14.5
+                .splineToLinearHeading(new Pose2d(64, -12, Math.toRadians(180)), Math.toRadians(0))//y11
                 .build();
 
         TrajectorySequence toMiddlePole = drive.trajectorySequenceBuilder(driveToStack.end())
@@ -108,7 +115,7 @@ public class Right52 extends GorillabotsCentral {
                 .addTemporalMarker(0.5, () -> lift.setTarget(lift.lift_mid))
                 //.turn(Math.toRadians(45))
                 //.lineToLinearHeading(new Pose2d(29, -18.5, Math.toRadians(225)))
-                .splineTo(new Vector2d(29, -19.25), Math.toRadians(225))//x29.5 y18.75
+                .splineTo(new Vector2d(29.6, -19), Math.toRadians(225))//x29.5 y18.6
                 .build();
 
         TrajectorySequence stackFromCycle = drive.trajectorySequenceBuilder(toMiddlePole.end())
@@ -117,7 +124,8 @@ public class Right52 extends GorillabotsCentral {
                 //.lineToLinearHeading(new Pose2d(36, -12, Math.toRadians(225)))
                 //.turn(Math.toRadians(-45))
                 //.lineToLinearHeading(new Pose2d(64, -11, Math.PI))
-                .splineTo(new Vector2d(63.5, -11), 0)
+                .splineTo(new Vector2d(37, -14), Math.toRadians(10))
+                .splineTo(new Vector2d(63.5, -12), Math.toRadians(0))
                 .build();
 
         TrajectorySequence park1 = drive.trajectorySequenceBuilder(toMiddlePole.end())
@@ -150,14 +158,85 @@ public class Right52 extends GorillabotsCentral {
 
         boolean thing = false;
 
-        startVisionProcessing();
+        startAprilProcessRIGHT();
+
+
+        ConePos conePos = ConePos.TWO;
+
+        final double FEET_PER_METER = 3.28084;
+
+        double last_real_id = 1;
+
+        int numFramesWithoutDetection = 0;
+
+        final float DECIMATION_HIGH = 3;
+        final float DECIMATION_LOW = 2;
+        final float THRESHOLD_HIGH_DECIMATION_RANGE_METERS = 1.0f;
+        final int THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 4;
 
         while(!isStarted() && !isStopRequested()){
 
-            telemetry.addData("Position: ", Pipeline.getAnalysis());
-            telemetry.addData("Avg1: ", Pipeline.getAvg1());
-            telemetry.update();
-            field_pos = Pipeline.sleevePositionInt();
+            ArrayList<AprilTagDetection> detections = apipe.getDetectionsUpdate();
+
+            // If there's been a new frame...
+            if(detections != null)
+            {
+                telemetry.addData("FPS", webcamR.getFps());
+                telemetry.addData("Overhead ms", webcamR.getOverheadTimeMs());
+                telemetry.addData("Pipeline ms", webcamR.getPipelineTimeMs());
+                telemetry.addData("thing: ", apipe.getDetectionsUpdate());
+
+                // If we don't see any tags
+                if(detections.size() == 0)
+                {
+                    numFramesWithoutDetection++;
+
+                    // If we haven't seen a tag for a few frames, lower the decimation
+                    // so we can hopefully pick one up if we're e.g. far back
+                    if(numFramesWithoutDetection >= THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION)
+                    {
+                        apipe.setDecimation(DECIMATION_LOW);
+                    }
+                }
+                // We do see tags!
+                else
+                {
+                    numFramesWithoutDetection = 0;
+
+                    // If the target is within 1 meter, turn on high decimation to
+                    // increase the frame rate
+                    if(detections.get(0).pose.z < THRESHOLD_HIGH_DECIMATION_RANGE_METERS)
+                    {
+                        apipe.setDecimation(DECIMATION_HIGH);
+                    }
+
+                    for(AprilTagDetection detection : detections)
+                    {
+                        if(detection.id == 0 || detection.id == 1 || detection.id == 2){
+                            last_real_id = detection.id;
+                        }
+                        telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
+                        telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
+                        telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
+                        telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
+                        telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
+                        telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
+                        telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
+                        if(last_real_id == 0){
+                            conePos = ConePos.ONE;
+                        }
+                        if(last_real_id == 1){
+                            conePos = ConePos.TWO;
+                        }
+                        if(last_real_id == 2){
+                            conePos = ConePos.THREE;
+                        }
+                        telemetry.addData("Cone position: ", conePos);
+                    }
+                }
+
+                telemetry.update();
+            }
         }
 
 
@@ -333,9 +412,9 @@ public class Right52 extends GorillabotsCentral {
 
                     if(intake.state == Intake.State.OPEN && lft == LiftAutoRR.DONE){
 
-                        if(field_pos == 1){ drive.followTrajectorySequenceAsync(park1); }
-                        if(field_pos == 2){ drive.followTrajectorySequenceAsync(park2); }
-                        if(field_pos == 3){ drive.followTrajectorySequenceAsync(park3); }
+                        if(last_real_id == 0){ drive.followTrajectorySequenceAsync(park1); }
+                        if(last_real_id == 1){ drive.followTrajectorySequenceAsync(park2); }
+                        if(last_real_id == 2){ drive.followTrajectorySequenceAsync(park3); }
                         intake_drop_timer.reset();
                         drv = DriveAutoRR.PARK;
                     }

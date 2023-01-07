@@ -77,14 +77,14 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
 
     public void startVisionProcessing() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcamL = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
+        webcamL = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcamL"), cameraMonitorViewId);
         //pipeline = new EOCVtest();
         Pipeline = new VisionPipeline();
         webcamL.setPipeline(Pipeline);
         webcamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcamL.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                webcamL.startStreaming(1280, 720, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override
@@ -102,7 +102,7 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
         webcamL.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcamL.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                webcamL.startStreaming(640, 480, OpenCvCameraRotation.UPSIDE_DOWN);
             }
 
             @Override

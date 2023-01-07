@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.drive.opmode.tets;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 
+@Disabled
 @TeleOp(group = "AAAAAAAAAA", name = "thingtest")
 public class SuperAutoIntakeTest extends GorillabotsCentral {
     @Override

@@ -92,7 +92,7 @@ public class Sensors {
 
             if(loop >= loop_inc){
 
-                if(getDistIn() >= 3 && in_dist < 3.9){
+                if(getDistIn() >= 3 && in_dist < 4.25){//big 3.9
                     intakeReady = true;
                 }
 

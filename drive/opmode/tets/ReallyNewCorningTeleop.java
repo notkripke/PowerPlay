@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 
 @Disabled
 @TeleOp(group = "drive")
-public class CorningTeleop extends GorillabotsCentral {
+public class ReallyNewCorningTeleop extends GorillabotsCentral {
 
     enum FSM{
         INTAKE_UP,
@@ -42,6 +42,8 @@ public class CorningTeleop extends GorillabotsCentral {
         ElapsedTime stalltimer = new ElapsedTime();
         ElapsedTime liftautoadjusttimer = new ElapsedTime();
         ElapsedTime dropconetimer = new ElapsedTime();
+        ElapsedTime intakedroptimer = new ElapsedTime();
+        ElapsedTime manualintaketimer = new ElapsedTime();
 
         FSM last_mchn = FSM.INTAKE_UP;
 
@@ -60,6 +62,10 @@ public class CorningTeleop extends GorillabotsCentral {
         boolean lift_high_stall_check_override = false;
 
         boolean act = false;
+
+        boolean retracted_enough = false;
+
+        boolean retract_helper = false;
 
         boolean off_stack = false;
 
@@ -116,58 +122,21 @@ public class CorningTeleop extends GorillabotsCentral {
 
                     case INTAKE_UP:
 
-                        lift.setTarget(Lift.lift_stack);
-                        intake.target = Intake.Position.OPEN;
-                        last_intake_target_open = true;
-                        //extension.setTarget(Extension.intake_pos);
-                        extentionMAG.setTarget(ExtentionMAG.State.RETRACTED);
-                        drive_speed_constant = 0.6;
+                        override_lift_update = false;
 
-
-                        if (lift.state == Lift.State.HOLDING && intake.state == Intake.State.OPEN && lift.target == lift.lift_stack) {
-
-                            act = true;
-
-
-                            if (sensors.intakeReady) {
-                                lift.setTarget(1);
-                                machine = FSM.INTAKE_DOWN;
-                            }
+                        if(!override_lift_update && extentionMAG.state == ExtentionMAG.State.RETRACTED) {
+                            lift.setTarget(Lift.lift_stack);
                         }
 
-                        break;
-
-                    case INTAKE_DOWN:
-
-                        if(gamepad1.b){
-                            if(!manual_intake){
-                                manualinttimer.reset();
-                            }
-                            intake.intake.setPosition(intake.CLOSED);
-                            intake.target = Intake.Position.CLOSED;
-                            manual_intake = true;
+                        if(gamepad2.dpad_right){
+                            override_lift_update = true;
+                        }
+                        if(gamepad2.dpad_left){
+                            override_lift_update = false;
                         }
 
-                        lift.max_power_dwn = -0.35;
+                        if(override_lift_update){
 
-                        act = false;
-
-                        if (intake.state == Intake.State.CLOSED && (intake.switch_cooldown || (manual_intake && manualinttimer.seconds() > 0.75))) {
-
-                            custom_transfer_target = lift.posL + 825;
-
-                            if (lift.state == Lift.State.STALLING || lift.posL > 30) {
-                                off_stack = true;
-                                custom_transfer_target = lift.posL + 825;
-                            }
-
-                            if ((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && lift.last_posL < 75) {
-                                off_stack = false;
-                            }
-                            machine = FSM.TRANSFER;
-                        }
-
-                        if ((gamepad1.y && !intake.switch_triggered) || (lift.state == Lift.State.STALLING && !intake.switch_triggered) && stalltimer.seconds() >= 0.5) {
                             if (gamepad2.right_trigger < 0.15 && gamepad2.left_trigger < 0.15) {
                                 lift.liftr.setPower(lift.Rf);
                                 lift.liftl.setPower(lift.Lf);
@@ -192,17 +161,103 @@ public class CorningTeleop extends GorillabotsCentral {
                                 manual_lift_stage = "4";
                             }
 
-                            if(intake.state == Intake.State.CLOSED && intake.switch_cooldown)
+
+                        }
+
+
+                        intake.target = Intake.Position.OPEN;
+                        last_intake_target_open = true;
+                        //extension.setTarget(Extension.intake_pos);
+                        extentionMAG.setTarget(ExtentionMAG.State.RETRACTED);
+                        drive_speed_constant = 0.6;
+
+
+                        if (lift.state == Lift.State.HOLDING && intake.state == Intake.State.OPEN && lift.target == lift.lift_stack) {
+
+                            act = true;
+
+
+                            if (sensors.intakeReady) {
+                                lift.setTarget(1);
+                                machine = FSM.INTAKE_DOWN;
+                            }
+                        }
+
+                        break;
+
+                    case INTAKE_DOWN:
+
+                        if(gamepad1.b){
+                            intake.intake.setPosition(intake.CLOSED);
+                            intake.target = Intake.Position.CLOSED;
+                        }
+
+                        lift.max_power_dwn = -0.35;
+
+                        act = false;
+
+                        if(!intake.switch_triggered){
+                            intakedroptimer.reset();
+                        }
+
+                        if(intake.switch_triggered){
+                            lift.setTarget(lift.getPositionL() - 25);
+                        }
+
+                        if (intake.switch_triggered && intakedroptimer.seconds() > 0.25) {
+                            custom_transfer_target = lift.posL + 825;
+                            machine = FSM.TRANSFER;
+                        }
+
+                        if(gamepad1.y){
+                            machine = FSM.INTAKE_UP;
+                        }
+
+                        if(gamepad1.dpad_right || gamepad2.dpad_right){
+                            override_lift_update = true;
+                            manual_intake = true;
+                        }
+
+                        if(manual_intake){
+                            if (gamepad2.right_trigger < 0.15 && gamepad2.left_trigger < 0.15) {
+                                lift.liftr.setPower(lift.Rf);
+                                lift.liftl.setPower(lift.Lf);
+                                manual_lift_stage = "1";
+                            }
+
+                            if (gamepad2.right_trigger > 0.15 && gamepad2.left_trigger < 0.15) {
+                                lift.liftl.setPower(gamepad2.right_trigger * 0.65 + lift.Lf);
+                                lift.liftr.setPower(gamepad2.right_trigger * 0.65 + lift.Rf);
+                                manual_lift_stage = "2";
+                            }
+
+                            if (gamepad2.left_trigger > 0.15 && gamepad2.right_trigger < 0.15) {
+                                lift.liftr.setPower(-gamepad2.left_trigger * 0.4 + lift.Rf);
+                                lift.liftl.setPower(-gamepad2.left_trigger * 0.4 + lift.Lf);
+                                manual_lift_stage = "3";
+                            }
+
+                            if (gamepad2.right_trigger > 0.15 && gamepad2.left_trigger > 0.15) {
+                                lift.liftr.setPower(lift.Rf);
+                                lift.liftl.setPower(lift.Lf);
+                                manual_lift_stage = "4";
+                            }
+                            if(!intake.switch_triggered){
+                                manualintaketimer.reset();
+                            }
+                            if(intake.state == Intake.State.CLOSED && manualintaketimer.seconds() > 0.25){
+                                manual_intake = false;
+                                override_lift_update = false;
                                 custom_transfer_target = lift.posL + 825;
                                 machine = FSM.TRANSFER;
                             }
-
-
+                        }
                         break;
 
 
                     case TRANSFER:
 
+                        override_lift_update = false;
                         if(gamepad1.x){
                             machine = FSM.INTAKE_UP;
                         }
@@ -277,9 +332,9 @@ public class CorningTeleop extends GorillabotsCentral {
                                 manual_lift_stage = "1";
                             }
 
-                            if (gamepad2.right_trigger > 0.15 && gamepad2.left_trigger < 0.15) {
-                                lift.liftl.setPower(gamepad2.right_trigger * 0.65 + lift.Lf);
-                                lift.liftr.setPower(gamepad2.right_trigger * 0.65 + lift.Rf);
+                            if (gamepad2.right_trigger > 0.1 && gamepad2.left_trigger < 0.1) {
+                                lift.liftl.setPower(gamepad2.right_trigger);
+                                lift.liftr.setPower(gamepad2.right_trigger);
                                 manual_lift_stage = "2";
                             }
 
@@ -294,15 +349,16 @@ public class CorningTeleop extends GorillabotsCentral {
                                 lift.liftl.setPower(lift.Lf);
                                 manual_lift_stage = "4";
                             }
+                        }
 
-                            if(gamepad2.a){
-                                intake.intake.setPosition(intake.OPEN);
-                                intake.target = Intake.Position.OPEN;
-                                hasReachedTarget = false;
-                                //override_lift_update = false;
-                                dropconetimer.reset();
-                                machine = FSM.RETURN;
-                            }
+                        if(gamepad2.a){
+                            intake.intake.setPosition(intake.OPEN);
+                            intake.target = Intake.Position.OPEN;
+                            hasReachedTarget = false;
+                        }
+                        if((!intake.switch_triggered && intake.state == Intake.State.OPEN) || gamepad2.dpad_down){
+                            dropconetimer.reset();
+                            machine = FSM.RETURN;
                         }
 
 
@@ -316,22 +372,13 @@ public class CorningTeleop extends GorillabotsCentral {
                             override_lift_update = false;
                         }
 
-                        if(!hasReachedTarget){
-                            lift.setTarget(lift_raise_target);
-                        }
-                        if(!hasReachedTarget && !override_lift_update && (lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING)){
-                            hasReachedTarget = true;
-                        }
+                       if(gamepad2.dpad_down){
+                           extentionMAG.setTarget(ExtentionMAG.State.RETRACTED);
+                       }
 
-                        if (intake.state == Intake.State.OPEN && hasReachedTarget) {
-                            //extension.setTarget(Extension.intake_pos);
-                            extentionMAG.setTarget(ExtentionMAG.State.RETRACTED);
-                            hasReachedTarget = true;
-                        }
 
-                        if (extentionMAG.state == ExtentionMAG.State.RETRACTED || gamepad2.dpad_down) {
-
-                            lift.setTarget(Lift.lift_hold);
+                        if (extentionMAG.state == ExtentionMAG.State.RETRACTED) {
+                            //lift.setTarget(Lift.lift_hold);
                             sensors.reset();
                             machine = FSM.INTAKE_UP;
                         }
@@ -339,13 +386,6 @@ public class CorningTeleop extends GorillabotsCentral {
                         break;
 
 
-                }
-
-                if (gamepad2.a) {
-                    intake.target = Intake.Position.OPEN;
-                }
-                if (gamepad2.back) {
-                    intake.target = Intake.Position.CLOSED;
                 }
 
                 intake.update(intaketime);
@@ -406,6 +446,8 @@ public class CorningTeleop extends GorillabotsCentral {
                 dashboardTelemetry.addData("has reached target?: ", hasReachedTarget);
                 dashboardTelemetry.addData("trigger l: ", controller_trigger_l);
                 dashboardTelemetry.addData("trigger r: ", controller_trigger_r);
+                dashboardTelemetry.addData("hasReachedTarget: ", hasReachedTarget);
+                dashboardTelemetry.addData("manual lift stage: ", manual_lift_stage);
                 dashboardTelemetry.update();
 
                 last_mchn = machine;

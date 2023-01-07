@@ -6,9 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 
-
-@Autonomous(group = "drive")
 @Disabled
+@Autonomous(group = "drive")
 public class LiftTest extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {
