@@ -100,7 +100,7 @@ public class Left52 extends GorillabotsCentral {
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
                 .setReversed(true)//false
-                .addTemporalMarker(0.5, () -> lift.setTarget(875))
+                .addTemporalMarker(0.5, () -> lift.setTarget(925))
                 /*.back(1)
                 .splineToLinearHeading(new Pose2d(39, -10, Math.toRadians(180)), Math.toRadians(0))
                 //.waitSeconds(0.1)
@@ -115,7 +115,7 @@ public class Left52 extends GorillabotsCentral {
                 .addTemporalMarker(0.5, () -> lift.setTarget(lift.lift_mid))
                 //.turn(Math.toRadians(45))
                 //.lineToLinearHeading(new Pose2d(29, -18.5, Math.toRadians(225)))
-                .splineTo(new Vector2d(-30.5, -18.75), Math.toRadians(320))//x29.5 y18.6
+                .splineTo(new Vector2d(-30.25, -19), Math.toRadians(320))//x29.5 y18.6
                 .build();
 
         TrajectorySequence stackFromCycle = drive.trajectorySequenceBuilder(toMiddlePole.end())
@@ -143,7 +143,7 @@ public class Left52 extends GorillabotsCentral {
                 .setReversed(true)
                 .splineTo(new Vector2d(-36, -11), Math.toRadians(180))
                 .setReversed(false)
-                .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(-13.5, -12, Math.toRadians(0)))
                 .build();
 
         //lift.setTarget(Lift.lift_stack);
@@ -341,7 +341,7 @@ public class Left52 extends GorillabotsCentral {
                     }
 
                     if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 0.25) && new_cone_grabbed && thing && thing2 == 15){//lower the 2 and 150 for quick
-                        lift.setTarget(Lift.lift_hold + 500);
+                        lift.setTarget(Lift.lift_hold + 550);
                         thing = false;
                         thing2 = 0;
                         lft = LiftAutoRR.CLEAR;

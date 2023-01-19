@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(group = "drive")
-public class Right52 extends GorillabotsCentral {
+public class Right60 extends GorillabotsCentral {
 
     enum DriveAutoRR{
         INIT,
@@ -95,7 +95,7 @@ public class Right52 extends GorillabotsCentral {
                 //.lineToLinearHeading(new Pose2d(31.25, -23.25, Math.PI))//x32
                 .lineToLinearHeading(new Pose2d(36, -25.25, Math.PI))
                 .splineToLinearHeading(new Pose2d(31.5, -23, Math.PI), Math.PI)//x31.25
-                .addTemporalMarker(1.5, () -> lift.setTarget(Lift.lift_mid))//3
+                .addTemporalMarker(1, () -> lift.setTarget(Lift.lift_mid))//3
                 .build();
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
@@ -147,7 +147,7 @@ public class Right52 extends GorillabotsCentral {
 
         //lift.setTarget(Lift.lift_stack);
 
-        double cycles = 4;//3
+        double cycles = 5;//3
         double cycles_completed = 0;
 
         double ok = 400;

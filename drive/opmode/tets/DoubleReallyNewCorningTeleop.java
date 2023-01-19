@@ -62,10 +62,6 @@ public class DoubleReallyNewCorningTeleop extends GorillabotsCentral {
 
         boolean act = false;
 
-        boolean retracted_enough = false;
-
-        boolean retract_helper = false;
-
         boolean off_stack = false;
 
         double custom_transfer_target = 0;

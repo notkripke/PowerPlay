@@ -104,6 +104,36 @@ public class Sensors {
 
     }
 
+    public void autoStackAdjust(ElapsedTime timer, double minWaitTimeMilli){
+
+        adj_power_y = 0.12;
+
+        if(timer.milliseconds() > minWaitTimeMilli){
+
+            if(getDistInSide() > 2.75){
+                adj_power_x = 0.2;
+                intakeReady = false;
+            }
+
+            if(in_side_dist < 2.25){
+                adj_power_x = -0.2;
+                intakeReady = false;
+            }
+
+            if(in_side_dist > 2.25 && in_side_dist < 2.75){
+                adj_power_x = 0;
+                adj_power_y = 0;
+                intakeReady = true;
+            }
+
+
+            timer.reset();
+        }
+
+
+
+    }
+
     public void updateAutoAdjTimer(ElapsedTime timer, double minWaitTimeMilli, boolean useOut, boolean useIn) {
 
         if (timer.milliseconds() > minWaitTimeMilli) {

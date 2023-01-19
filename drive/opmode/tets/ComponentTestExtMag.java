@@ -17,24 +17,12 @@ public class ComponentTestExtMag extends GorillabotsCentral {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        Telemetry dashboardTelemetry = dashboard.getTelemetry();
-
         initializeComponents();
 
         ExtentionMAG extentionmag = new ExtentionMAG(hardwareMap);
 
-        ElapsedTime timer = new ElapsedTime();
-        ElapsedTime intaketime = new ElapsedTime();
-        ElapsedTime exttimer = new ElapsedTime();
-
-        double last_time = 0;
-
-
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
         drive.setPoseEstimate(new Pose2d(0,0,0));
-
-        double feedforward_cnst = .1;
 
         intake.intake.setPosition(intake.intake.getPosition());
 
@@ -46,43 +34,23 @@ public class ComponentTestExtMag extends GorillabotsCentral {
 
         while(!isStopRequested()){
 
-            lift.time_elapsed = timer.time() - last_time;
-
-            if(!gamepad1.dpad_down && gamepad1.right_trigger > gamepad1.left_trigger) {
-                lift.liftr.setPower(gamepad1.right_trigger + feedforward_cnst);
-                lift.liftl.setPower(gamepad1.right_trigger + feedforward_cnst);
+            if(!gamepad2.right_bumper && !gamepad2.left_bumper){
+                extentionmag.extension.setPower(0);
             }
 
-            if(!gamepad1.dpad_down && gamepad1.left_trigger > gamepad1.right_trigger){
-                lift.liftl.setPower(-gamepad1.left_trigger + feedforward_cnst);
-                lift.liftr.setPower(-gamepad1.left_trigger + feedforward_cnst);
+            if(gamepad2.right_bumper && !gamepad2.left_bumper){
+                extentionmag.extension.setPower(1);
             }
 
-            if(!gamepad1.dpad_down && gamepad1.right_trigger < 0.1 && gamepad1.left_trigger < 0.1){
-                lift.liftr.setPower(0 + feedforward_cnst);
-                lift.liftl.setPower(0 + feedforward_cnst);
+            if(!gamepad2.right_bumper && gamepad2.left_bumper){
+                extentionmag.extension.setPower(-1);
             }
 
-
-
-            /*if(!gamepad1.right_bumper && !gamepad1.left_bumper){
-                extension.extension.setPower(0);
+            if(gamepad2.a){
+                intake.intake.setPosition(intake.OPEN);
             }
-
-            if(gamepad1.left_bumper && !gamepad1.right_bumper){
-                extension.extension.setPower(-1);
-            }
-            if(gamepad1.right_bumper && !gamepad1.left_bumper){
-                extension.extension.setPower(1);
-            }*/
-
-
-
-            if(gamepad1.a){
-                intake.target = Intake.Position.OPEN;
-            }
-            if(gamepad1.b){
-                intake.target = Intake.Position.CLOSED;
+            if(gamepad2.b){
+                intake.intake.setPosition(intake.CLOSED);
             }
 
             if(gamepad1.left_bumper){
@@ -92,9 +60,25 @@ public class ComponentTestExtMag extends GorillabotsCentral {
                 flipper.flipper.setPosition(flipper.LOWERED);
             }
 
-            intake.intake.setPosition(intake.target_pos);
-            intake.update(intaketime);
+            if (gamepad2.right_trigger < 0.15 && gamepad2.left_trigger < 0.15) {
+                lift.liftr.setPower(lift.Rf);
+                lift.liftl.setPower(lift.Lf);
+            }
 
+            if (gamepad2.right_trigger > 0.15 && gamepad2.left_trigger < 0.15) {
+                lift.liftl.setPower(gamepad2.right_trigger * 0.65 + lift.Lf);
+                lift.liftr.setPower(gamepad2.right_trigger * 0.65 + lift.Rf);
+            }
+
+            if (gamepad2.left_trigger > 0.15 && gamepad2.right_trigger < 0.15) {
+                lift.liftr.setPower(-gamepad2.left_trigger * 0.4 + lift.Rf);
+                lift.liftl.setPower(-gamepad2.left_trigger * 0.4 + lift.Lf);
+            }
+
+            if (gamepad2.right_trigger > 0.15 && gamepad2.left_trigger > 0.15) {
+                lift.liftr.setPower(lift.Rf);
+                lift.liftl.setPower(lift.Lf);
+            }
 
             drive.setWeightedDrivePower(
                     new Pose2d(
@@ -105,32 +89,6 @@ public class ComponentTestExtMag extends GorillabotsCentral {
             );
 
             drive.update();
-            extentionmag.update(exttimer);
-            extentionmag.extension.setPower(extentionmag.out);
-
-
-
-            /*if(gamepad1.a){
-                intake.intake.setPosition(.05);
-            }
-            if(gamepad1.b){
-                intake.intake.setPosition(.95);
-            }*/
-
-            last_time = timer.time();
-
-            dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
-            dashboardTelemetry.addData("Lift R: ", lift.getPositionR());
-            dashboardTelemetry.addData("Intake Target: ", intake.target);
-            dashboardTelemetry.addData("Intake State: ", intake.state);
-            dashboardTelemetry.addData("Intake Pos: ", intake.intake.getPosition());
-            dashboardTelemetry.addData("Switch: ", intake.getSwitchState());
-            dashboardTelemetry.addData("Mag Triggered: ", extentionmag.getMagSwitch());
-            dashboardTelemetry.addData("override: ", extentionmag.override);
-            dashboardTelemetry.addData("Ext state: ", extentionmag.state);
-            dashboardTelemetry.addData("Ext Target: ", extentionmag.target);
-            dashboardTelemetry.addData("last_non 0 out: ", extentionmag.last_non_zero_out);
-            dashboardTelemetry.update();
 
 
 
