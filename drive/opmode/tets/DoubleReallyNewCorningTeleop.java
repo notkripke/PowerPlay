@@ -205,6 +205,8 @@ public class DoubleReallyNewCorningTeleop extends GorillabotsCentral {
                         }
 
                         if(gamepad1.y){
+                            sensors.in_dist = 10;
+                            sensors.intakeReady = false;
                             machine = FSM.INTAKE_UP;
                         }
 
@@ -306,7 +308,7 @@ public class DoubleReallyNewCorningTeleop extends GorillabotsCentral {
                             extentionMAG.setTarget(ExtentionMAG.State.EXTENDED);
                         }
 
-                        if(lift_raise_target == lift.lift_high && lift.getPositionL() > 1650){
+                        if(lift_raise_target == lift.lift_high && (lift.getPositionL() > 1650 || gamepad2.right_trigger > 0.7)){
                             extentionMAG.setTarget(ExtentionMAG.State.EXTENDED);
                         }
 
@@ -484,6 +486,7 @@ public class DoubleReallyNewCorningTeleop extends GorillabotsCentral {
                 dashboardTelemetry.addData("trigger r: ", controller_trigger_r);
                 dashboardTelemetry.addData("hasReachedTarget: ", hasReachedTarget);
                 dashboardTelemetry.addData("manual lift stage: ", manual_lift_stage);
+                dashboardTelemetry.addData("distance: ", sensors.in_dist);
                 dashboardTelemetry.update();
 
                 last_mchn = machine;

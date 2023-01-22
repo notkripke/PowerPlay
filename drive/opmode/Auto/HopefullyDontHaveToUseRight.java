@@ -18,7 +18,7 @@ import org.openftc.apriltag.AprilTagDetection;
 import java.util.ArrayList;
 
 @Autonomous(group = "drive")
-public class Right52 extends GorillabotsCentral {
+public class HopefullyDontHaveToUseRight extends GorillabotsCentral {
 
     enum DriveAutoRR{
         INIT,
@@ -63,6 +63,7 @@ public class Right52 extends GorillabotsCentral {
         ElapsedTime exttimer = new ElapsedTime();
         ElapsedTime intake_drop_timer = new ElapsedTime();
         ElapsedTime emergency_park_timer = new ElapsedTime();
+        ElapsedTime auto_adj_timer = new ElapsedTime();
 
         int thing2 = 0;
 
@@ -93,7 +94,7 @@ public class Right52 extends GorillabotsCentral {
                 //.lineToLinearHeading(new Pose2d(31.25, -23.25, Math.PI))//x32
                 .lineToLinearHeading(new Pose2d(36, -25.25, Math.PI))
                 .splineToLinearHeading(new Pose2d(31.5, -23, Math.PI), Math.PI)//x31.25
-                .addTemporalMarker(1.5, () -> lift.setTarget(Lift.lift_mid))//3
+                .addTemporalMarker(1, () -> lift.setTarget(Lift.lift_mid))//3
                 .build();
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
@@ -145,7 +146,7 @@ public class Right52 extends GorillabotsCentral {
 
         //lift.setTarget(Lift.lift_stack);
 
-        double cycles = 4;//3
+        double cycles = 3;//3
         double cycles_completed = 0;
 
         double ok = 400;
@@ -311,13 +312,17 @@ public class Right52 extends GorillabotsCentral {
                         lift.setTarget(Lift.lift_stack);
                     }
 
+                    if(lift.target == lift.lift_stack && lift.state == Lift.State.HOLDING && extentionMAG.state == ExtentionMAG.State.RETRACTED && !drive.isBusy() && !sensors.intakeReady){
+                        sensors.autoStackAdjust(auto_adj_timer, 750);
+                    }
+
                    /* if(emergency_park_timer.seconds() > 6){
                         drv = DriveAutoRR.EMERGENCY;
                         lift.setTarget(Lift.lift_stack);
                         lft = LiftAutoRR.EMERGENCY;
                     }*/
 
-                    if(!drive.isBusy() && goingToStack && !new_cone_grabbed && !intake.switch_triggered && lift.target == lift.lift_stack){
+                    if(!drive.isBusy() && goingToStack && !new_cone_grabbed && !intake.switch_triggered && lift.target == lift.lift_stack && sensors.intakeReady){
                         lift.setTarget(1);
                     }
 
@@ -342,6 +347,7 @@ public class Right52 extends GorillabotsCentral {
                         thing = false;
                         thing2 = 0;
                         intake_drop_timer.reset();
+                        sensors.intakeReady = false;
                         lft = LiftAutoRR.CLEAR;
                         intake.intake.setPosition(intake.CLOSED);
                     }

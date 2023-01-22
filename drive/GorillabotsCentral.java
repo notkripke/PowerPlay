@@ -1,28 +1,19 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.ConeFlipper;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Extension;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Sensors;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.VisionPipeline;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.drive.opmode.Components.AprilTagPipeline;
-
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import static org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift.*;
-
-
-import static java.lang.Math.abs;
-import static java.lang.Math.max;
 
 //import org.firstinspires.ftc.teamcodeGIT.teamcode.components.RevGyro;
 

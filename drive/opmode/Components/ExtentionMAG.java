@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
@@ -48,7 +47,8 @@ public class ExtentionMAG {
 
     public ExtentionMAG(HardwareMap hardwareMap){
         extension = hardwareMap.dcMotor.get("extension");
-        extension.setDirection(DcMotorSimple.Direction.REVERSE);
+        //extension.setDirection(DcMotorSimple.Direction.REVERSE);
+        extension.setDirection(DcMotorSimple.Direction.FORWARD);
         exten_switch = hardwareMap.digitalChannel.get("mag");
         exten_switch.setMode(DigitalChannel.Mode.INPUT);
         state = State.RETRACTED;
