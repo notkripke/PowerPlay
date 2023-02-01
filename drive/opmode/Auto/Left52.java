@@ -56,7 +56,7 @@ public class Left52 extends GorillabotsCentral {
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
-        drive.setPoseEstimate(new Pose2d(-36,-62,0));
+        drive.setPoseEstimate(new Pose2d(-35,-62,0));
 
         ElapsedTime intaketime = new ElapsedTime();
         ElapsedTime timer = new ElapsedTime();
@@ -87,7 +87,7 @@ public class Left52 extends GorillabotsCentral {
 
         double last_time = 0;
 
-        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(-36,-62,0))//0,0,0
+        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(-35,-62,0))//0,0,0
                 .setReversed(false)
                 //.lineToLinearHeading(new Pose2d(36, -23.25, Math.PI))
                 //.lineToLinearHeading(new Pose2d(31.25, -23.25, Math.PI))//x32
@@ -410,7 +410,7 @@ public class Left52 extends GorillabotsCentral {
                 case RETURNTOPOLE:
 
                     if(intake.state == Intake.State.OPEN && lft == LiftAutoRR.DONE){
-
+                        lowerConstaints(1.50);
                         if(last_real_id == 0){ drive.followTrajectorySequenceAsync(park1); }
                         if(last_real_id == 1){ drive.followTrajectorySequenceAsync(park2); }
                         if(last_real_id == 2){ drive.followTrajectorySequenceAsync(park3); }
