@@ -225,10 +225,10 @@ public class Lift {
             state = State.BASE;
         }
 
-        if(posR >= target * 0.75){
+        if(posR >= target * 0.1){
             safeToExtend = true;
         }
-        if(posR < target * 0.75){
+        if(posR < target * 0.1){
             safeToExtend = false;
         }
 
@@ -323,10 +323,10 @@ public class Lift {
             state = State.BASE;
         }*/
 
-        if(posR >= target * 0.75){
+        if(posR >= target * 0.1){
             safeToExtend = true;
         }
-        if(posR < target * 0.75){
+        if(posR < target * 0.1){
             safeToExtend = false;
         }
 
@@ -449,10 +449,10 @@ public class Lift {
         }
 
 
-        if(posR >= target * 0.75){
+        if(posR >= target * 0.1){
             safeToExtend = true;
         }
-        if(posR < target * 0.75){
+        if(posR < target * 0.1){
             safeToExtend = false;
         }
 

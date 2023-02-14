@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.ConeFlipper;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.DriverAssistance;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Extension;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
+import org.firstinspires.ftc.teamcode.drive.opmode.Components.NewPassthrough;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Sensors;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.VisionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -26,11 +28,13 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
     public VisionPipeline Pipeline;
     public Lift lift;
     public Intake intake;
-    public Extension extension;
+    //public Extension extension;
     public Sensors sensors;
     public SampleMecanumDrive drive;
     public ConeFlipper flipper;
     public AprilTagPipeline apipe;
+    public DriverAssistance edrive;
+    public NewPassthrough passthrough;
 
     public static double tagsize = 0.035306;
     public static double fx = 821;
@@ -49,6 +53,8 @@ public abstract class GorillabotsCentral extends LinearOpMode {//testing
         drive = new SampleMecanumDrive(hardwareMap);
         apipe = new AprilTagPipeline(tagsize, fx, fy, cx, cy);
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        passthrough = new NewPassthrough(hardwareMap);
+        edrive = new DriverAssistance();
     }
 
     public void lowerConstaints(double multiplier) {

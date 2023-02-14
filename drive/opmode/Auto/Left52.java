@@ -83,7 +83,7 @@ public class Left52 extends GorillabotsCentral {
 
         Lift.State last_state = Lift.State.BASE;
 
-        lowerConstaints(0.65);
+        lowerConstaints(0.6);
 
         double last_time = 0;
 
@@ -93,7 +93,7 @@ public class Left52 extends GorillabotsCentral {
                 //.lineToLinearHeading(new Pose2d(31.25, -23.25, Math.PI))//x32
                 .lineToLinearHeading(new Pose2d(-36, -27.25, 0))
                 .splineToLinearHeading(new Pose2d(-32, -21.5, 0),0)//x31.25
-                .addTemporalMarker(1.5, () -> lift.setTarget(Lift.lift_mid))//3
+                .addTemporalMarker(1, () -> lift.setTarget(Lift.lift_mid))//3
                 .build();
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
@@ -103,8 +103,8 @@ public class Left52 extends GorillabotsCentral {
                 .splineToLinearHeading(new Pose2d(39, -10, Math.toRadians(180)), Math.toRadians(0))
                 //.waitSeconds(0.1)
                 .lineToLinearHeading(new Pose2d(60, -10, Math.toRadians(180)))*/
-                .lineToLinearHeading(new Pose2d(-39, -15, Math.toRadians(0)))//y14.5
-                .splineToLinearHeading(new Pose2d(-64.5, -11.75, Math.toRadians(0)), Math.toRadians(180))//y11
+                .lineToLinearHeading(new Pose2d(-39, -15.5, Math.toRadians(0)))//y14.5
+                .splineToLinearHeading(new Pose2d(-63.5, -11, Math.toRadians(0)), Math.toRadians(179))//y11
                 .build();
 
         TrajectorySequence toMiddlePole = drive.trajectorySequenceBuilder(driveToStack.end())
@@ -146,7 +146,7 @@ public class Left52 extends GorillabotsCentral {
 
         //lift.setTarget(Lift.lift_stack);
 
-        double cycles = 4;//3
+        double cycles = 5;//3
         double cycles_completed = 0;
 
         double ok = 400;
@@ -287,13 +287,13 @@ public class Left52 extends GorillabotsCentral {
                             cycles_completed += 1;
                         }
 
-                        if(cycles_completed == cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.5){//1.5
+                        if(cycles_completed == cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.2){//1.5
                             intake_drop_timer.reset();
                             safeToClear = true;
                             drv = DriveAutoRR.RETURNTOPOLE;
                             lft = LiftAutoRR.DONE;
                         }
-                        if(cycles_completed < cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.5){//1.5
+                        if(cycles_completed < cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.35){//1.5
                             intake_drop_timer.reset();
                             safeToClear = true;
                             lft = LiftAutoRR.INTAKE;
@@ -333,12 +333,12 @@ public class Left52 extends GorillabotsCentral {
 
                     if(lift.target == ok && !thing && new_cone_grabbed){
                         thing2 += 1;
-                        if(emergency_park_timer.seconds() > 0.25 && thing2 == 15){//.seconds() > 2 thing2 75
+                        if(emergency_park_timer.seconds() > 0.1 && thing2 == 10){//.seconds() > 2 thing2 75
                             thing = true;
                         }
                     }
 
-                    if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 0.25) && new_cone_grabbed && thing && thing2 == 15){//lower the 2 and 150 for quick
+                    if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 0.1) && new_cone_grabbed && thing && thing2 == 10){//lower the 2 and 150 for quick
                         lift.setTarget(Lift.lift_hold + 550);
                         thing = false;
                         thing2 = 0;
@@ -377,7 +377,7 @@ public class Left52 extends GorillabotsCentral {
 
                 case INIT:
 
-                    if (intake_drop_timer.seconds() > .25) {
+                    if (intake_drop_timer.seconds() > .3) {
                         lift.setTarget(Lift.lift_stack);
                         drive.followTrajectorySequenceAsync(alignToPole1);
                         drv = DriveAutoRR.ALIGNTOPOLE1;
