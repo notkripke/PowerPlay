@@ -39,7 +39,7 @@ public class U2Teleop extends GorillabotsCentral {
         ElapsedTime exttimer = new ElapsedTime();
         ElapsedTime intaketime = new ElapsedTime();
         ElapsedTime manualinttimer = new ElapsedTime();
-        ElapsedTime stalltimer = new ElapsedTime();
+        ElapsedTime pass_timer = new ElapsedTime();
         ElapsedTime liftautoadjusttimer = new ElapsedTime();
         ElapsedTime dropconetimer = new ElapsedTime();
         ElapsedTime intakedroptimer = new ElapsedTime();
@@ -53,7 +53,7 @@ public class U2Teleop extends GorillabotsCentral {
 
         boolean last_intake_target_open = true;
 
-        boolean reintake_watch = false;
+       // boolean reintake_watch = false;
 
         double drive_speed_constant = 1;
 
@@ -71,7 +71,7 @@ public class U2Teleop extends GorillabotsCentral {
 
         int snsr_loop = 0;
 
-        int loop_max = 80;//40
+        int loop_max = 160;//40
 
         String manual_lift_stage = "";
 
@@ -120,6 +120,12 @@ public class U2Teleop extends GorillabotsCentral {
 
                     case INTAKE_UP:
 
+                        intake.target = Intake.Position.OPEN;
+                        intake.intake.setPosition(intake.OPEN);
+                        last_intake_target_open = true;
+                        passthrough.setTarget(NewPassthrough.State.RETRACTED);
+                        drive_speed_constant = 0.9;//1
+
                         override_lift_update = false;
 
                         if(!override_lift_update && passthrough.state == NewPassthrough.State.RETRACTED) {
@@ -163,12 +169,6 @@ public class U2Teleop extends GorillabotsCentral {
                         }
 
 
-                        intake.target = Intake.Position.OPEN;
-                        last_intake_target_open = true;
-                        passthrough.setTarget(NewPassthrough.State.RETRACTED);
-                        drive_speed_constant = 1;
-
-
                         if (lift.state == Lift.State.HOLDING && intake.state == Intake.State.OPEN && lift.target == lift.lift_stack && lift.last_posL > 500) {
 
                             act = true;
@@ -189,6 +189,8 @@ public class U2Teleop extends GorillabotsCentral {
                             intake.target = Intake.Position.CLOSED;
                         }
 
+                        passthrough.setTarget(NewPassthrough.State.RETRACTED);
+
                         lift.max_power_dwn = -0.35;
 
                         act = false;
@@ -202,7 +204,7 @@ public class U2Teleop extends GorillabotsCentral {
                         }
 
                         if (intake.switch_triggered && intakedroptimer.seconds() > 0.25) {
-                            custom_transfer_target = lift.posL + 825;
+                            custom_transfer_target = lift.posL + 975;
                             machine = FSM.TRANSFER;
                         }
 
@@ -247,7 +249,8 @@ public class U2Teleop extends GorillabotsCentral {
                             if(intake.state == Intake.State.CLOSED && manualintaketimer.seconds() > 0.25){
                                 manual_intake = false;
                                 override_lift_update = false;
-                                custom_transfer_target = lift.posL + 825;
+                                custom_transfer_target = lift.posL + 975;
+
                                 machine = FSM.TRANSFER;
                             }
                         }
@@ -255,6 +258,10 @@ public class U2Teleop extends GorillabotsCentral {
 
 
                     case TRANSFER:
+
+                        if(lift.posL > custom_transfer_target / 2){
+                            passthrough.setTarget(NewPassthrough.State.EXTENDED);
+                        }
 
                         override_lift_update = false;
                         if(gamepad1.x){
@@ -303,7 +310,11 @@ public class U2Teleop extends GorillabotsCentral {
 
                     case RAISE:
 
-                        drive_speed_constant = 0.6;
+                        drive_speed_constant = 0.45;
+
+                        if(lift.posL > custom_transfer_target / 2){
+                            passthrough.setTarget(NewPassthrough.State.EXTENDED);
+                        }
 
                         if (lift.safeToExtend && lift_raise_target != lift.lift_high) {
                             passthrough.setTarget(NewPassthrough.State.EXTENDED);
@@ -375,11 +386,11 @@ public class U2Teleop extends GorillabotsCentral {
 
                     case RETURN:
 
-                        if(dropconetimer.seconds() > 0.75){
+                        if(dropconetimer.seconds() > 0.25){
                             passthrough.setTarget(NewPassthrough.State.RETRACTED);
                         }
 
-                       if(gamepad2.dpad_down){
+                       if(gamepad2.dpad_up){
                            passthrough.setTarget(NewPassthrough.State.RETRACTED);
                        }
 
@@ -432,7 +443,7 @@ public class U2Teleop extends GorillabotsCentral {
                         new Pose2d(
                                 -gamepad1.left_stick_y * drive_speed_constant,
                                 -gamepad1.left_stick_x * drive_speed_constant,
-                                -gamepad1.right_stick_x * rotation_power_constant
+                                -gamepad1.right_stick_x * 0.75
                         )
                 );
 
@@ -448,9 +459,14 @@ public class U2Teleop extends GorillabotsCentral {
                 }
 
                 drive.update();
-                passthrough.update();
+                passthrough.newUpdate(pass_timer);
+
+                if(passthrough.getFrontState() && passthrough.target != NewPassthrough.State.EXTENDED){
+                    passthrough.out = 0;
+                }
+
                 passthrough.servo.setPower(passthrough.out);
-                sensors.updateb(act, snsr_loop, loop_max/*, false, true*/);
+                sensors.updateb(act, snsr_loop, loop_max);
                 lift.updateFeedforwardNew();
 
                 if(!override_lift_update) {
@@ -461,6 +477,11 @@ public class U2Teleop extends GorillabotsCentral {
 
                 last_time = timer.time();
 
+                /*dashboardTelemetry.addData("Ext State: ", passthrough.state);
+                dashboardTelemetry.addData("Ext target: ", passthrough.target);
+                dashboardTelemetry.addData("back pass thing: ", passthrough.front_trig);
+                dashboardTelemetry.addData("front pass thing: ", passthrough.back_trig);
+                dashboardTelemetry.addData("passthrough speed: ", passthrough.servo.getPower());
                 dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
                 dashboardTelemetry.addData("Lift R: ", lift.getPositionR());
                 dashboardTelemetry.addData("Intake Target: ", intake.target);
@@ -472,8 +493,6 @@ public class U2Teleop extends GorillabotsCentral {
                 dashboardTelemetry.addData("Lift Target: ", lift.target);
                 dashboardTelemetry.addData("Lift state: ", lift.state);
                 dashboardTelemetry.addData("Machine: ", machine);
-                dashboardTelemetry.addData("Ext State: ", passthrough.state);
-                dashboardTelemetry.addData("Ext target: ", passthrough.target);
                 dashboardTelemetry.addData("lift power: ", lift.outL);
                 dashboardTelemetry.addData("lift override: ", override_lift_update);
                 dashboardTelemetry.addData("manual intake timer: ", manualinttimer.seconds());
@@ -483,7 +502,7 @@ public class U2Teleop extends GorillabotsCentral {
                 dashboardTelemetry.addData("hasReachedTarget: ", hasReachedTarget);
                 dashboardTelemetry.addData("manual lift stage: ", manual_lift_stage);
                 dashboardTelemetry.addData("distance: ", sensors.in_dist);
-                dashboardTelemetry.update();
+                dashboardTelemetry.update();*/
 
                 last_mchn = machine;
 

@@ -66,7 +66,7 @@ public class Lift {
     public static double posL = 0.0;
     public static double posR = 0.0;
 
-    public static double max_power_dwn = -0.25;
+    public static double max_power_dwn = -0.5;
 
     public static double angularVeloL = 0.0;
     public static double angularVeloR = 0.0;
@@ -336,6 +336,26 @@ public class Lift {
         last_posR = posR;
     }
 
+    public static boolean clear_to_drop = false;
+
+    public void setClearToDrop(){
+        clear_to_drop = true;
+    }
+
+    public void setUnclearToDrop(){
+        clear_to_drop = false;
+    }
+
+    public static boolean clear_to_intake = false;
+
+    public void setClearToIntake(){
+        clear_to_intake = true;
+    }
+
+    public void setUnclearToIntake(){
+        clear_to_intake = false;
+    }
+
 
     public void updateFeedforwardNew(){
 
@@ -390,11 +410,11 @@ public class Lift {
         //if(outR < max_power_dwn){ outR = max_power_dwn; }
 
         if((posL > -50 && posL < 150) && target < 20){
-            max_power_dwn = -.5;
+            max_power_dwn = -.7;
         }
 
         if(posL > 250){
-            max_power_dwn = -.5;
+            max_power_dwn = -.7;
         }
 
         // if(outL > max_velo){ outL = max_velo;}

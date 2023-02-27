@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.NewPassthrough;
@@ -19,7 +18,7 @@ import org.openftc.apriltag.AprilTagDetection;
 import java.util.ArrayList;
 
 @Autonomous(group = "drive")
-public class RightSpamHigh extends GorillabotsCentral {
+public class LeftFiveHigh extends GorillabotsCentral {
 
     enum DriveAutoRR{
         INIT,
@@ -53,17 +52,20 @@ public class RightSpamHigh extends GorillabotsCentral {
 
         lift.resetEncoders();
 
+        boolean advance_from_drop = false;
+
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
-        drive.setPoseEstimate(new Pose2d(34.5,-62,Math.toRadians(180)));//35x
+        drive.setPoseEstimate(new Pose2d(-34.5,-62,0));//35x
 
         ElapsedTime intaketime = new ElapsedTime();
         ElapsedTime timer = new ElapsedTime();
         ElapsedTime pass_timer = new ElapsedTime();
         ElapsedTime intake_drop_timer = new ElapsedTime();
         ElapsedTime emergency_park_timer = new ElapsedTime();
+        ElapsedTime test_timer = new ElapsedTime();
 
         int thing2 = 0;
 
@@ -82,61 +84,67 @@ public class RightSpamHigh extends GorillabotsCentral {
 
         Lift.State last_state = Lift.State.BASE;
 
-        lowerConstaints(0.65);
+        //lowerConstaints(0.65);
 
         double last_time = 0;
 
-        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(34.5,-62,Math.toRadians(180)))//35x
+        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(-34.5,-62,0))//35x
                 .setReversed(false)
-                .lineToLinearHeading(new Pose2d(37, -20, Math.toRadians(180)))
-                .splineToSplineHeading(new Pose2d(28.5, -5, Math.toRadians(120)), Math.toRadians(120))
+                .lineToLinearHeading(new Pose2d(-38.5, -23, Math.toRadians(0)))
+                .addDisplacementMarker(0.975, -1.5, () -> lift.setClearToDrop())
+                .splineToSplineHeading(new Pose2d(-29.0, -5.25, Math.toRadians(60)), Math.toRadians(60))//29.5x
                 .addTemporalMarker(0.75, () -> lift.setTarget(Lift.lift_high))//3
                 .build();
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
                 .setReversed(true)//false
-                .addTemporalMarker(0.5, () -> lift.setTarget(925))
+                .addDisplacementMarker(0.99, -.25, () -> lift.setClearToIntake())
+                .addTemporalMarker(0.15, () -> lift.setTarget(925))
                 .setReversed(true)
-                .splineTo(new Vector2d(38, -12), Math.toRadians(0))
-                .lineToLinearHeading(new Pose2d(62, -12, Math.toRadians(180)))
+                .splineTo(new Vector2d(-62.6, -11.5), Math.toRadians(180))//x38
+                //.lineToLinearHeading(new Pose2d(-62, -11.5, Math.toRadians(0)))
                 .build();
 
         TrajectorySequence toMiddlePole = drive.trajectorySequenceBuilder(driveToStack.end())
                 .setReversed(false)
                 //.lineToLinearHeading(new Pose2d(37, -12, Math.PI))//x25.5
-                .addTemporalMarker(0.5, () -> lift.setTarget(lift.lift_high))
-                .lineToLinearHeading(new Pose2d(43.5, -12, Math.toRadians(180)))
-                .splineTo(new Vector2d(29, -3.75), Math.toRadians(130))
+                //.addTemporalMarker(0.50, () -> lift.setTarget(lift.lift_high))//o.5
+                .addDisplacementMarker(0.01, 4, () -> lift.setTarget(Lift.lift_high))
+                //* after 99% of the path (+0 inches) has been completed
+                //.lineToLinearHeading(new Pose2d(-43.5, -12, Math.toRadians(0)))
+                .addDisplacementMarker(0.99, 0, () -> lift.setClearToDrop())//clear to drop*
+                .splineTo(new Vector2d(-25.3, -4.05), Math.toRadians(47))//y3
                 .build();
 
         TrajectorySequence stackFromCycle = drive.trajectorySequenceBuilder(toMiddlePole.end())
                 .setReversed(true)//
-                .addTemporalMarker(0.75, () -> lift.setTarget(Lift.lift_stack))
-                .splineTo(new Vector2d(38, -12), Math.toRadians(0))
-                .lineToLinearHeading(new Pose2d(61.75, -12, Math.toRadians(180)))
+                .addTemporalMarker(0.15, () -> lift.setTarget(Lift.lift_stack))
+                .splineTo(new Vector2d(-62.3, -11.25), Math.toRadians(180))//x-38
+                .addDisplacementMarker(0.99, -0.25, () -> lift.setClearToIntake())
+                //.lineToLinearHeading(new Pose2d(-61.5, -12, Math.toRadians(0)))
                 .build();
 
         TrajectorySequence park1 = drive.trajectorySequenceBuilder(toMiddlePole.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(37, -14), Math.toRadians(10))
-                .splineTo(new Vector2d(59.5, -11.75), Math.toRadians(0))
+                .splineTo(new Vector2d(-37, -14), Math.toRadians(170))
+                .splineTo(new Vector2d(-59.5, -11.75), Math.toRadians(180))
                 .build();
 
         TrajectorySequence park2 = drive.trajectorySequenceBuilder(toMiddlePole.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(36, -11), Math.toRadians(0))
+                .splineTo(new Vector2d(-36, -11), Math.toRadians(180))
                 .build();
 
         TrajectorySequence park3 = drive.trajectorySequenceBuilder(toMiddlePole.end())
                 .setReversed(true)
-                .splineTo(new Vector2d(36, -11), Math.toRadians(0))
+                .splineTo(new Vector2d(-36, -11), Math.toRadians(180))
                 .setReversed(false)
-                .lineToLinearHeading(new Pose2d(13.5, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(-13.5, -12, Math.toRadians(0)))
                 .build();
 
         //lift.setTarget(Lift.lift_stack);
 
-        double cycles = 4;//3
+        double cycles = 6;//3
         double cycles_completed = 0;
 
         double ok = 400;
@@ -147,7 +155,7 @@ public class RightSpamHigh extends GorillabotsCentral {
 
         boolean thing = false;
 
-        startAprilProcessRIGHT();
+        startAprilProcessLEFT();
 
 
         ConePos conePos = ConePos.TWO;
@@ -155,6 +163,8 @@ public class RightSpamHigh extends GorillabotsCentral {
         final double FEET_PER_METER = 3.28084;
 
         double last_real_id = 1;
+
+        boolean clear_to_drop = false;
 
         int numFramesWithoutDetection = 0;
 
@@ -170,9 +180,9 @@ public class RightSpamHigh extends GorillabotsCentral {
             // If there's been a new frame...
             if(detections != null)
             {
-                telemetry.addData("FPS", webcamR.getFps());
-                telemetry.addData("Overhead ms", webcamR.getOverheadTimeMs());
-                telemetry.addData("Pipeline ms", webcamR.getPipelineTimeMs());
+                telemetry.addData("FPS", webcamL.getFps());
+                telemetry.addData("Overhead ms", webcamL.getOverheadTimeMs());
+                telemetry.addData("Pipeline ms", webcamL.getPipelineTimeMs());
                 telemetry.addData("thing: ", apipe.getDetectionsUpdate());
 
                 // If we don't see any tags
@@ -256,35 +266,45 @@ public class RightSpamHigh extends GorillabotsCentral {
 
                 case LIFTTOPOLE:
 
-                    if(lift.posL > lift.lift_low){
+                    if(lift.posL > lift.lift_low - 550){
                         passthrough.setTarget(NewPassthrough.State.EXTENDED);
                     }
 
-                    if(intake.target == Intake.Position.CLOSED){
-                        dropped_cone = false;
-                    }
+                    //if(intake.state == Intake.State.OPEN){ dropped_cone = true; }
 
-                    if(intake.state == Intake.State.OPEN){ dropped_cone = true; }
+                    if(lift.clear_to_drop){
 
-                    if((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && passthrough.state == NewPassthrough.State.EXTENDED && !drive.isBusy()){
                         new_cone_grabbed = false;
                         intake.target = Intake.Position.OPEN;
                         intake.intake.setPosition(intake.OPEN);
 
-                        if(!dropped_cone) {
-                            intake_drop_timer.reset();
+                        if(!advance_from_drop){
+                            test_timer.reset();
                             cycles_completed += 1;
+                            advance_from_drop = true;
                         }
 
-                        if(cycles_completed == cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.5){//1.5
+                        //if(!dropped_cone) {
+                          //  intake_drop_timer.reset();
+                           // dropped_cone = true;
+                           // cycles_completed += 1;
+                        //}
+
+                        if(cycles_completed == cycles && test_timer.seconds() >= 0.65){//1.5
                             intake_drop_timer.reset();
+                            lift.setUnclearToDrop();
                             safeToClear = true;
+                            goingToStack = true;
+                            advance_from_drop = false;
                             drv = DriveAutoRR.RETURNTOPOLE;
                             lft = LiftAutoRR.DONE;
                         }
-                        if(cycles_completed < cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.5){//1.5
+                        if(cycles_completed < cycles && test_timer.seconds() >= 0.65 && advance_from_drop){//1.5
                             intake_drop_timer.reset();
+                            lift.setUnclearToDrop();
+                            goingToStack = true;
                             safeToClear = true;
+                            advance_from_drop = false;
                             lft = LiftAutoRR.INTAKE;
                         }
                     }
@@ -292,7 +312,7 @@ public class RightSpamHigh extends GorillabotsCentral {
 
                 case INTAKE:
 
-                    if(intake.state == Intake.State.OPEN){
+                    if(intake.target == Intake.Position.OPEN){
                         passthrough.setTarget(NewPassthrough.State.RETRACTED);
                     }
 
@@ -306,30 +326,22 @@ public class RightSpamHigh extends GorillabotsCentral {
                         lft = LiftAutoRR.EMERGENCY;
                     }*/
 
-                    if(!drive.isBusy() && goingToStack && !new_cone_grabbed && !intake.switch_triggered && lift.target == lift.lift_stack){
+                    if(lift.clear_to_intake && goingToStack && !new_cone_grabbed && !intake.switch_triggered && lift.target == lift.lift_stack){
                         lift.setTarget(1);
+                        lift.setUnclearToIntake();
                     }
 
-                    if(intake.switch_triggered && goingToStack && !new_cone_grabbed && !thing){
+                    if(intake.switch_triggered && goingToStack && !new_cone_grabbed){
                         ok = lift.getPositionL();
-                        lift.setTarget(ok);
+                        lift.setTarget(ok-50);
                         intake_drop_timer.reset();
                         emergency_park_timer.reset();
                         new_cone_grabbed = true;
                         intake.intake.setPosition(intake.CLOSED);
                     }
 
-                    if(lift.target == ok && !thing && new_cone_grabbed){
-                        thing2 += 1;
-                        if(emergency_park_timer.seconds() > 0.25 && thing2 == 15){//.seconds() > 2 thing2 75
-                            thing = true;
-                        }
-                    }
-
-                    if((intake.state == Intake.State.CLOSED && intake_drop_timer.seconds() > 0.25) && new_cone_grabbed && thing && thing2 == 15){//lower the 2 and 150 for quick
-                        lift.setTarget(Lift.lift_hold + 1050);
-                        thing = false;
-                        thing2 = 0;
+                    if((intake.target == Intake.Position.CLOSED && intake_drop_timer.seconds() > 0.45) && new_cone_grabbed){//lower the 2 and 150 for quick
+                        lift.setTarget(Lift.lift_hold + 500);//1050
                         lft = LiftAutoRR.CLEAR;
                         intake.intake.setPosition(intake.CLOSED);
                     }
@@ -364,8 +376,8 @@ public class RightSpamHigh extends GorillabotsCentral {
 
                 case INIT:
 
-                    if (intake_drop_timer.seconds() > .75) {
-                        lift.setTarget(Lift.lift_stack);
+                    if (intake_drop_timer.seconds() > .30) {
+                        lift.setTarget(Lift.lift_stack + 400);
                         drive.followTrajectorySequenceAsync(alignToPole1);
                         drv = DriveAutoRR.ALIGNTOPOLE1;
                         intake.intake.setPosition(intake.CLOSED);
@@ -375,10 +387,12 @@ public class RightSpamHigh extends GorillabotsCentral {
 
                 case ALIGNTOPOLE1:
 
-                    if(intake.state == Intake.State.OPEN && safeToClear){
+                    passthrough.setTarget(NewPassthrough.State.EXTENDED);
+
+                    if(intake.target == Intake.Position.OPEN && safeToClear){
                         //resetConstaints();
                         if(cycles_completed == 1) {
-                            lowerConstaints(0.7);
+                            //lowerConstaints(0.7);
                             drive.followTrajectorySequenceAsync(driveToStack);
                         }
                         if(cycles_completed > 1){
@@ -398,9 +412,9 @@ public class RightSpamHigh extends GorillabotsCentral {
 
                     if(intake.state == Intake.State.OPEN && lft == LiftAutoRR.DONE){
                         lowerConstaints(1.50);
-                        if(last_real_id == 2){ drive.followTrajectorySequenceAsync(park1); }
+                        if(last_real_id == 0){ drive.followTrajectorySequenceAsync(park1); }
                         if(last_real_id == 1){ drive.followTrajectorySequenceAsync(park2); }
-                        if(last_real_id == 0){ drive.followTrajectorySequenceAsync(park3); }
+                        if(last_real_id == 2){ drive.followTrajectorySequenceAsync(park3); }
                         intake_drop_timer.reset();
                         drv = DriveAutoRR.PARK;
                     }
@@ -434,7 +448,7 @@ public class RightSpamHigh extends GorillabotsCentral {
             lift.liftl.setPower(lift.outL);
             lift.liftr.setPower(lift.outL);
             intake.update(intaketime);
-            passthrough.update(pass_timer);
+            passthrough.newUpdate(pass_timer);
             passthrough.servo.setPower(passthrough.out);
             sensors.update(act, snsr_loop, loop_max);
             drive.update();
@@ -443,7 +457,7 @@ public class RightSpamHigh extends GorillabotsCentral {
             lift.time_overall = timer.milliseconds();
             last_state = lift.state;
 
-            dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
+            /*dashboardTelemetry.addData("Lift L: ", lift.getPositionL());
             dashboardTelemetry.addData("Lift R: ", lift.getPositionR());
             dashboardTelemetry.addData("Intake Target: ", intake.target);
             dashboardTelemetry.addData("Intake State: ", intake.state);
@@ -463,7 +477,7 @@ public class RightSpamHigh extends GorillabotsCentral {
             dashboardTelemetry.addData("timer thingy: ", emergency_park_timer.seconds());
             dashboardTelemetry.addData("thing: ", thing);
             dashboardTelemetry.addData("thing2: ", thing2);
-            dashboardTelemetry.update();
+            dashboardTelemetry.update();*/
         }
     }
 }

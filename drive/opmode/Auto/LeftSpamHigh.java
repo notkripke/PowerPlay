@@ -61,7 +61,7 @@ public class LeftSpamHigh extends GorillabotsCentral {
 
         ElapsedTime intaketime = new ElapsedTime();
         ElapsedTime timer = new ElapsedTime();
-        ElapsedTime exttimer = new ElapsedTime();
+        ElapsedTime pass_timer = new ElapsedTime();
         ElapsedTime intake_drop_timer = new ElapsedTime();
         ElapsedTime emergency_park_timer = new ElapsedTime();
 
@@ -434,7 +434,7 @@ public class LeftSpamHigh extends GorillabotsCentral {
             lift.liftl.setPower(lift.outL);
             lift.liftr.setPower(lift.outL);
             intake.update(intaketime);
-            passthrough.update();
+            passthrough.update(pass_timer);
             passthrough.servo.setPower(passthrough.out);
             sensors.update(act, snsr_loop, loop_max);
             drive.update();
