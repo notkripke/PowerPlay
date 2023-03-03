@@ -25,7 +25,7 @@ public class ComponentManualNewPassThrough extends GorillabotsCentral {
         passthrough.setTarget(NewPassthrough.State.RETRACTED);
 
         double closed = 0;
-        double open = 0.2;
+        double open = 0.3;
 
         intake.intake.setPosition(open);
 

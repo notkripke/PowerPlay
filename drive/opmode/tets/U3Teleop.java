@@ -8,14 +8,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.NewPassthrough;
 
 
 @TeleOp(group = "drive")
-public class U2Teleop extends GorillabotsCentral {
+public class U3Teleop extends GorillabotsCentral {
 
     enum FSM{
         INTAKE_UP,
@@ -73,7 +72,7 @@ public class U2Teleop extends GorillabotsCentral {
 
         int snsr_loop = 0;
 
-        int loop_max = 200;//40
+        int loop_max = 8;//40
 
         String manual_lift_stage = "";
 
@@ -179,7 +178,7 @@ public class U2Teleop extends GorillabotsCentral {
                             act = true;
 
 
-                            if (sensors.intakeReady && gamepad1.left_trigger < 0.25) {
+                            if (gamepad1.right_bumper) {
                                 lift.setTarget(1);
                                 machine = FSM.INTAKE_DOWN;
                             }
@@ -210,7 +209,7 @@ public class U2Teleop extends GorillabotsCentral {
                             lift.setTarget(lift.getPositionL() - 25);
                         }
 
-                        if (intake.switch_triggered && intakedroptimer.seconds() > 0.25) {
+                        if (intake.switch_triggered && intakedroptimer.seconds() > 0.3) {
                             custom_transfer_target = lift.posL + 975;
                             machine = FSM.TRANSFER;
                         }
@@ -269,6 +268,11 @@ public class U2Teleop extends GorillabotsCentral {
                         if(lift.posL > custom_transfer_target / 2){
                             passthrough.setTarget(NewPassthrough.State.EXTENDED);
                         }
+
+                        /*if(!intake.switch_triggered){
+                            passthrough.setTarget(NewPassthrough.State.RETRACTED);
+                            machine = FSM.INTAKE_UP;
+                        }*/
 
                         first_cycle = false;
 
@@ -436,7 +440,7 @@ public class U2Teleop extends GorillabotsCentral {
                             manual_lift_stage = "4";
                         }
 
-                        if(gamepad2.dpad_up){
+                        if(dropconetimer.seconds() >= 0.75){
                             sensors.reset();
                             lift.setTarget(lift.lift_stack);
                             override_lift_update = false;
@@ -459,29 +463,28 @@ public class U2Teleop extends GorillabotsCentral {
                         )
                 );
 
-                if(gamepad2.right_bumper && gamepad2.left_bumper && gamepad2.right_trigger > 0.9 && gamepad2.left_trigger > 0.9){
+                /*if(gamepad2.right_bumper && gamepad2.left_bumper && gamepad2.right_trigger > 0.9 && gamepad2.left_trigger > 0.9){
                     isAutoControlled = false;
-                }
-
-                if(gamepad1.left_bumper){
-                    flipper.flipper.setPosition(flipper.RAISED);
-                }
-                if(gamepad1.right_bumper){
-                    flipper.flipper.setPosition(flipper.LOWERED);
-                }
+                }*/
 
                 passthrough.newUpdate(pass_timer);
                 passthrough.servo.setPower(passthrough.out);
 
                 drive.update();
-                sensors.updateb(act, snsr_loop, loop_max);
+                //sensors.updateb(act, loop_max, snsr_loop);
                 lift.updateFeedforwardNew();
 
-                if(!override_lift_update) {
-                    lift.liftl.setPower(lift.outL);
-                    lift.liftr.setPower(lift.outL);
+                if(!gamepad2.left_bumper) {
+                    if (!override_lift_update) {
+                        lift.liftl.setPower(lift.outL);
+                        lift.liftr.setPower(lift.outL);
+                    }
                 }
 
+                if(gamepad2.left_bumper){
+                    lift.liftl.setPower(-1);
+                    lift.liftr.setPower(-1);
+                }
 
                 last_time = timer.time();
 

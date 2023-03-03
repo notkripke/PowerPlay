@@ -30,10 +30,9 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
  */
 @Config
 @Autonomous(group = "drive")
-@Disabled
 public class BackAndForth extends LinearOpMode {
 
-    public static double DISTANCE = 50;
+    public static double DISTANCE = 55;
 
     @Override
     public void runOpMode() throws InterruptedException {

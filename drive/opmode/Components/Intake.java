@@ -15,7 +15,7 @@ public class Intake {
     public DigitalChannel limit_switch;
 
 
-    public static double OPEN = 0.12;//1
+    public static double OPEN = 0.3;//1
     public static double CLOSED = 0.0;
 
     public static double testpos = 0;

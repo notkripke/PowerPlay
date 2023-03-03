@@ -11,13 +11,13 @@ public class NewPassthrough {
     public static DigitalChannel front_switch;
     public static DigitalChannel back_switch;
 
-    boolean in_spring = false;
+    public static boolean in_spring = false;
 
     public int inc = 0;
     public int inc_cap = 150;
 
     public static double springback_time = 200;
-    public static double springback_power = -0.2;
+    public static double springback_power = -0.1;
 
     public static boolean front_trig = false;//is front switch pressed
     public static boolean back_trig = false;//is back switch pressed
@@ -125,6 +125,9 @@ public class NewPassthrough {
     }
 
     public void newUpdate(ElapsedTime timer){
+
+        getFrontState();
+        getBackState();
 
         if(target != last_target){
             touched = false;
