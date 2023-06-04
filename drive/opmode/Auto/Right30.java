@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.GorillabotsCentral;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.drive.opmode.Components.ExtentionMAG;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Intake;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.Lift;
 import org.firstinspires.ftc.teamcode.drive.opmode.Components.NewPassthrough;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 
 @Disabled
 @Autonomous(group = "drive")
-public class Left62 extends GorillabotsCentral {
+public class Right30 extends GorillabotsCentral {
 
     enum DriveAutoRR{
         INIT,
@@ -30,6 +29,14 @@ public class Left62 extends GorillabotsCentral {
         RETURNTOPOLE,
         PARK,
         EMERGENCY
+    }
+
+    enum Traj{
+        alignToPole1,
+        driveToStack,
+        toMiddlePole,
+        stackFromCycle,
+        park
     }
 
     enum LiftAutoRR{
@@ -59,7 +66,7 @@ public class Left62 extends GorillabotsCentral {
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         drive.setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
-        drive.setPoseEstimate(new Pose2d(-34.5,-62,0));//35x
+        drive.setPoseEstimate(new Pose2d(34.5,-62,Math.toRadians(180)));//35x
 
         ElapsedTime intaketime = new ElapsedTime();
         ElapsedTime timer = new ElapsedTime();
@@ -79,6 +86,8 @@ public class Left62 extends GorillabotsCentral {
 
         boolean been_touched = false;
 
+        boolean really_dropped = false;
+
         boolean act = false;
 
         int snsr_loop = 0;
@@ -87,22 +96,24 @@ public class Left62 extends GorillabotsCentral {
 
         boolean pass_override = true;
 
+        Traj current_traj = Traj.alignToPole1;
+
         Lift.State last_state = Lift.State.BASE;
 
         //lowerConstaints(0.65);
 
         double last_time = 0;
 
-        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(-34.5,-62,0))//35x
+        TrajectorySequence alignToPole1 = drive.trajectorySequenceBuilder(new Pose2d(34.5,-62,Math.toRadians(180)))//35x
                 /*.setReversed(false)
                 .lineToLinearHeading(new Pose2d(-35, -21, Math.toRadians(0)))
                 .addDisplacementMarker(0.99, -1, () -> lift.setClearToDrop())
                 .splineToSplineHeading(new Pose2d(-25.75, -4, Math.toRadians(55)), Math.toRadians(55))
                 .addTemporalMarker(0.50, () -> lift.setTarget(Lift.lift_high))//3*/
                 .addTemporalMarker(0.5, () -> lift.setTarget(Lift.lift_high-90))
-                .lineToLinearHeading(new Pose2d(-35, -28, Math.toRadians(0)))
-                .splineToSplineHeading(new Pose2d(-35, -16, Math.toRadians(40)), Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(-26, -3.15, Math.toRadians(40)), Math.toRadians(40))
+                .lineToLinearHeading(new Pose2d(36, -25, Math.toRadians(180)))
+                .splineToSplineHeading(new Pose2d(36, -16, Math.toRadians(140)), Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(29.55, -3.15, Math.toRadians(140)), Math.toRadians(140))
                 .build();
 
         TrajectorySequence driveToStack = drive.trajectorySequenceBuilder(alignToPole1.end())
@@ -113,9 +124,9 @@ public class Left62 extends GorillabotsCentral {
                 .splineTo(new Vector2d(-46, -11), Math.toRadians(180))
                 .lineToLinearHeading(new Pose2d(-63, -10.5, Math.toRadians(0)))*/
                 .setReversed(true)
-                .addTemporalMarker(0.5, () -> lift.setTarget(925))
-                .splineToSplineHeading(new Pose2d(-40, -12, Math.toRadians(0)), Math.toRadians(180))
-                .lineToLinearHeading(new Pose2d(-62, -12, Math.toRadians(0)))
+                .addTemporalMarker(0.5, () -> lift.setTarget(Lift.lift_stack))
+                .splineToSplineHeading(new Pose2d(40, -12, Math.toRadians(180)), Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(62.5, -12, Math.toRadians(180)))
                 .build();
 
         TrajectorySequence toMiddlePole = drive.trajectorySequenceBuilder(driveToStack.end())
@@ -124,7 +135,8 @@ public class Left62 extends GorillabotsCentral {
                 .addDisplacementMarker(0.99, -1, () -> lift.setClearToDrop())
                 .splineTo(new Vector2d(-27.75, -20.50), Math.toRadians(320))*/
                 .setReversed(false)
-                .splineToSplineHeading(new Pose2d(-27.5, -22, Math.toRadians(320)), Math.toRadians(320))
+                .addTemporalMarker(0.5, () -> lift.setTarget(Lift.lift_mid))
+                .splineToSplineHeading(new Pose2d(27.5, -19, Math.toRadians(220)), Math.toRadians(220))
                 .build();
 
         TrajectorySequence stackFromCycle = drive.trajectorySequenceBuilder(toMiddlePole.end())
@@ -137,30 +149,28 @@ public class Left62 extends GorillabotsCentral {
                 .setReversed(true)
                 /*.back(6)
                 .splineToSplineHeading(new Pose2d(-62, -12, Math.toRadians(0)), Math.toRadians(180))*/
-                .splineTo(new Vector2d(-62, -12), Math.toRadians(180))
+                .splineTo(new Vector2d(62.5, -12), Math.toRadians(0))
                 .build();
 
-        TrajectorySequence park1 = drive.trajectorySequenceBuilder(toMiddlePole.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-37, -14), Math.toRadians(190))
-                .splineTo(new Vector2d(-59.5, -11.75), Math.toRadians(180))
+        TrajectorySequence park1 = drive.trajectorySequenceBuilder(alignToPole1.end())
+
+                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(180)))
                 .build();
 
-        TrajectorySequence park2 = drive.trajectorySequenceBuilder(toMiddlePole.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-36, -11), Math.toRadians(180))
+        TrajectorySequence park2 = drive.trajectorySequenceBuilder(alignToPole1.end())
+                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(35.5, -12, Math.toRadians(180)))
                 .build();
 
-        TrajectorySequence park3 = drive.trajectorySequenceBuilder(toMiddlePole.end())
-                .setReversed(true)
-                .splineTo(new Vector2d(-36, -11), Math.toRadians(180))
-                .setReversed(false)
-                .lineToLinearHeading(new Pose2d(-13.5, -12, Math.toRadians(0)))
+        TrajectorySequence park3 = drive.trajectorySequenceBuilder(alignToPole1.end())
+                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(57, -12, Math.toRadians(180)))
                 .build();
 
         //lift.setTarget(Lift.lift_stack);
 
-        double cycles = 3;//3
+        double cycles = 1;//3
         double cycles_completed = 0;
 
         boolean first_cycle = true;
@@ -175,7 +185,7 @@ public class Left62 extends GorillabotsCentral {
 
         boolean thing = false;
 
-        startAprilProcessLEFT();
+        startAprilProcessRIGHT();
 
 
         ConePos conePos = ConePos.TWO;
@@ -198,9 +208,9 @@ public class Left62 extends GorillabotsCentral {
             // If there's been a new frame...
             if(detections != null)
             {
-                telemetry.addData("FPS", webcamL.getFps());
-                telemetry.addData("Overhead ms", webcamL.getOverheadTimeMs());
-                telemetry.addData("Pipeline ms", webcamL.getPipelineTimeMs());
+                telemetry.addData("FPS", webcamR.getFps());
+                telemetry.addData("Overhead ms", webcamR.getOverheadTimeMs());
+                telemetry.addData("Pipeline ms", webcamR.getPipelineTimeMs());
                 telemetry.addData("thing: ", apipe.getDetectionsUpdate());
 
                 // If we don't see any tags
@@ -278,6 +288,8 @@ public class Left62 extends GorillabotsCentral {
                     if(lift.target == Lift.lift_high-90 || lift.target == lift.lift_mid){
                         safeToClear = false;
                         lft = LiftAutoRR.LIFTTOPOLE;
+                        dropped_cone = false;
+                        really_dropped = false;
                     }
 
                     break;
@@ -310,21 +322,26 @@ public class Left62 extends GorillabotsCentral {
                         newtimer.reset();
                     }
 
-                    if(intake.target == Intake.Position.CLOSED){
-                        dropped_cone = false;
-                    }
-
                     if((lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING) && !drive.isBusy()){
                         new_cone_grabbed = false;
                         intake.target = Intake.Position.OPEN;
                         intake.intake.setPosition(intake.OPEN);
 
-                        if(!dropped_cone) {
+                       /* if(!dropped_cone) {
+                            intake_drop_timer.reset();
+                            cycles_completed += 1;
+                        }*/
+
+                        if(intake.target == Intake.Position.OPEN){ dropped_cone = true; }
+
+                        if(!really_dropped && dropped_cone){
                             intake_drop_timer.reset();
                             cycles_completed += 1;
                         }
 
-                        if(intake.target == Intake.Position.OPEN){ dropped_cone = true; }
+                        if(dropped_cone){
+                            really_dropped = true;
+                        }
 
                         if(cycles_completed == cycles && intake.state == Intake.State.OPEN && intake_drop_timer.time() >= 0.50 && thoop && newtimer.seconds() >= 0.5){//1.5
                             intake_drop_timer.reset();
@@ -341,10 +358,16 @@ public class Left62 extends GorillabotsCentral {
                             safeToClear = true;
                             passthrough.setTarget(NewPassthrough.State.RETRACTED);
                             if(!first_cycle){
-                                drive.followTrajectorySequenceAsync(toMiddlePole);
+                                drive.followTrajectorySequenceAsync(stackFromCycle);
+                                current_traj = Traj.stackFromCycle;
+                            }
+                            if(first_cycle){
+                                drive.followTrajectorySequenceAsync(driveToStack);
+                                current_traj = Traj.driveToStack;
                             }
                             thoop = false;
                             first_cycle = false;
+                            goingToStack = true;
                             lft = LiftAutoRR.INTAKE;
                         }
                     }
@@ -407,12 +430,14 @@ public class Left62 extends GorillabotsCentral {
                     }
 
                     if(intake_drop_timer.seconds() > 0.25 && new_cone_grabbed && thing2 >= 25){//lower the 2 and 150 for quick
-                        lift.setTarget(Lift.lift_hold + 500);
+                        lift.setTarget(950);
                         thing = false;
                         thing2 = 0;
                         lft = LiftAutoRR.CLEAR;
                         thoop = false;
                         intake.intake.setPosition(intake.CLOSED);
+                        dropped_cone = false;
+                        really_dropped = false;
                     }
                     break;
 
@@ -423,7 +448,8 @@ public class Left62 extends GorillabotsCentral {
                         //lowerConstaints(1.3);
                         passthrough.servo.setPower(-1);
                         drive.followTrajectorySequenceAsync(toMiddlePole);
-                        lift.setTarget(Lift.lift_mid);
+                        current_traj = Traj.toMiddlePole;
+                        //lift.setTarget(Lift.lift_mid);
                         drv = DriveAutoRR.ALIGNTOPOLE1;
                         lft = LiftAutoRR.LIFTTOPOLE;
                     }
@@ -433,14 +459,13 @@ public class Left62 extends GorillabotsCentral {
 
                     if(intake.state == Intake.State.OPEN){
                         passthrough.setTarget(NewPassthrough.State.RETRACTED);
+                        passthrough.servo.setPower(1);
                     }
 
-                    if(passthrough.state == NewPassthrough.State.RETRACTED && drive.isBusy()){
+                    if(passthrough.getFrontState() && !drive.isBusy()){
                         lift.setTarget(1);
                     }
                     break;
-
-
             }
 
             switch(drv) {
@@ -450,6 +475,7 @@ public class Left62 extends GorillabotsCentral {
                     if (intake_drop_timer.seconds() > .50) {
                         lift.setTarget(Lift.lift_stack);
                         drive.followTrajectorySequenceAsync(alignToPole1);
+                        current_traj = Traj.alignToPole1;
                         drv = DriveAutoRR.ALIGNTOPOLE1;
                         intake.intake.setPosition(intake.CLOSED);
                     }
@@ -457,21 +483,7 @@ public class Left62 extends GorillabotsCentral {
                     break;
 
                 case ALIGNTOPOLE1:
-
-                    if(!drive.isBusy() && lft == LiftAutoRR.INTAKE){
-                        //resetConstaints();
-                        if(cycles_completed == 1) {
-                            //lowerConstaints(0.7);
-                            drive.followTrajectorySequenceAsync(driveToStack);
-                        }
-                        if(cycles_completed > 1){
-                            drive.followTrajectorySequenceAsync(stackFromCycle);
-                        }
-                        goingToStack = true;
-                        drv = DriveAutoRR.GOTOSTACK;
-                    }
                     break;
-
 
                 case GOTOSTACK:
                     break;
@@ -483,6 +495,7 @@ public class Left62 extends GorillabotsCentral {
                         if(last_real_id == 0){ drive.followTrajectorySequenceAsync(park1); }
                         if(last_real_id == 1){ drive.followTrajectorySequenceAsync(park2); }
                         if(last_real_id == 2){ drive.followTrajectorySequenceAsync(park3); }
+                        current_traj = Traj.park;
                         intake_drop_timer.reset();
                         drv = DriveAutoRR.PARK;
                     }
@@ -490,8 +503,8 @@ public class Left62 extends GorillabotsCentral {
 
                 case PARK:
                     if(lift.target == 1 && !drive.isBusy() && (lift.state == Lift.State.HOLDING || lift.state == Lift.State.STALLING)){
-                        requestOpModeStop();
-                        stop();
+                        //requestOpModeStop();
+                        //stop();
                     }
 
                     break;
@@ -528,14 +541,14 @@ public class Left62 extends GorillabotsCentral {
             lift.time_overall = timer.milliseconds();
             last_state = lift.state;
 
+            telemetry.addData("Current traj: ", current_traj);
             telemetry.addData("Lift L: ", lift.getPositionL());
             telemetry.addData("Lift R: ", lift.getPositionR());
+            telemetry.addData("Is drive busy?: ", drive.isBusy());
             telemetry.addData("Intake Target: ", intake.target);
             telemetry.addData("Intake State: ", intake.state);
             telemetry.addData("Intake Pos: ", intake.intake.getPosition());
             telemetry.addData("Switch: ", intake.getSwitchState());
-            telemetry.addData("Distance: ", sensors.in_dist);
-            telemetry.addData("Within Intake Range?: ", sensors.intakeReady);
             telemetry.addData("Lift Target: ", lift.target);
             telemetry.addData("Lift state: ", lift.state);
             telemetry.addData("Lift Machine: ", lft);

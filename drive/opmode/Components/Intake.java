@@ -84,8 +84,13 @@ public class Intake {
         return switch_triggered;
     }
 
+    public static boolean ignore_switch = false;
+
     public void update(ElapsedTime intaketime){
-        getSwitchState();
+
+        if(!ignore_switch) {
+            getSwitchState();
+        }
         if(target == Position.CLOSED && (intake.getPosition() > CLOSED * 1.35)){
             //intake.setPosition(CLOSED);
             target_pos = CLOSED;

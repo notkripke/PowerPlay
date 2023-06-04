@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -17,6 +18,7 @@ import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.ArrayList;
 
+@Disabled
 @Autonomous(group = "drive")
 public class NewRight62 extends GorillabotsCentral {
 
@@ -134,7 +136,7 @@ public class NewRight62 extends GorillabotsCentral {
                 .splineTo(new Vector2d(-27.75, -20.50), Math.toRadians(320))*/
                 .setReversed(false)
                 .addTemporalMarker(0.5, () -> lift.setTarget(Lift.lift_mid))
-                .splineToSplineHeading(new Pose2d(27.5, -19, Math.toRadians(220)), Math.toRadians(220))
+                .splineToSplineHeading(new Pose2d(27.5, -19.75, Math.toRadians(220)), Math.toRadians(220))
                 .build();
 
         TrajectorySequence stackFromCycle = drive.trajectorySequenceBuilder(toMiddlePole.end())
@@ -152,18 +154,18 @@ public class NewRight62 extends GorillabotsCentral {
 
         TrajectorySequence park1 = drive.trajectorySequenceBuilder(toMiddlePole.end())
 
-                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(12, -14, Math.toRadians(180)))
                 .build();
 
         TrajectorySequence park2 = drive.trajectorySequenceBuilder(toMiddlePole.end())
-                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(34, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(35.5, -14, Math.toRadians(180)))
                 .build();
 
         TrajectorySequence park3 = drive.trajectorySequenceBuilder(toMiddlePole.end())
-                .lineToLinearHeading(new Pose2d(39, -12, Math.toRadians(180)))
-                .lineToLinearHeading(new Pose2d(57, -12, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(57, -14, Math.toRadians(180)))
                 .build();
 
         //lift.setTarget(Lift.lift_stack);

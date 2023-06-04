@@ -53,8 +53,8 @@ import java.util.List;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(15, 0, 0);//p10
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(10, 0, 0);//p4
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(18, 0, 0);//p10
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(11, 0, 0);//p4
 /*
 ORDER OF ROADRUNNER TUNING:
 MaxVelocityTuner
